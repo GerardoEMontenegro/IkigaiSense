@@ -1,0 +1,31 @@
+{% extends 'layouts/Base_layoutia.html' %}
+{% load widget_tweaks %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
+
+
+ 
+{% block title_layout %}
+ 
+   {% block title %}
+    IKIGAI SEKAI - ESTILO DE VIDA
+   {% endblock title %}
+
+{% endblock title_layout %}
+
+{% block extra_head_layout %} 
+
+    {% block extra_head %}
+    {% endblock extra_head %}
+
+{% endblock extra_head_layout %}
+
+{% block content_layout %}
+    {% include 'components/commons/heather.html' %}
+
+<main class="min-h-[calc(100dvh_-_112px)]">
+    {% block content %} COLOCAR CONTENIDO {% endblock content %}
+</main>
+    {% include 'components/commons/footer.html' %}
+
+{% endblock content_layout %}
