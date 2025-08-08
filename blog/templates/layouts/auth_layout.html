@@ -1,0 +1,17 @@
+{% extends 'layouts/Base_layoutia.html' %}
+ 
+{% load widget_tweaks %}
+{% load static %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
+
+{% block content %}
+ <div class="flex h-screen">
+
+  <!-- Imagen ocupa 2/3 -->
+   <div class="w-2/3 hidden md:flex items-center justify-center">
+     <img src="{% static 'assets/images/login-side-image.jpeg' %}" alt="bienestar" class="w-full h-full object-cover" />
+   </div>
+
+ </div>
+{% endblock content%}

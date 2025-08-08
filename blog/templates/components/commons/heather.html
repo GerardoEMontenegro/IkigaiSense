@@ -1,0 +1,13 @@
+{% load static%}
+
+{% block content %}
+
+<header class="bg-[#F6F2E6] hidden md:flex justify-between items-center py-2 text-sm border-b border-gray-200">
+            <div class="flex items-center">
+                <!-- Logo -->
+            <img src="{% static 'assets/logo2.png' %}"  alt="Logo Ikigai" class="h-20 mr-2">
+            </div>
+        <div> {% include 'components/ui/navia.html' %} </div>
+</header>
+
+{% endblock content%}
