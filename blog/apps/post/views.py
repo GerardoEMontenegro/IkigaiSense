@@ -1,12 +1,16 @@
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.shortcuts import get_object_or_404, render, redirect
 from apps.post.models import Post, PostImage, Comment
-from apps.post.forms import PostForm, PostFilterForm, CommentForm, PostCreateForm
+from apps.post.forms import PostForm, PostFilterForm, CommentForm, ImageFormSet
 from django.db.models import Count
-#from django.contrib.auth.mixins import LoginRequiredMixin  #obliga al usuario a estar logueado para acceder a ciertas vistas
+from django.contrib.auth.mixins import LoginRequiredMixin  #obliga al usuario a estar logueado para acceder a ciertas vistas
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.core.exceptions import PermissionDenied 
+from django.utils.timezone import now
+
+
+
 
 class PostListView(ListView):
     model = Post
@@ -90,29 +94,43 @@ class PostDetailView(DetailView): #herenecia de TemplateView para crear una vist
                     self.request.user.is_admin
                 ):
                 context['deleting_comment_id'] = comment.id
-            else:
+            else:   
                 context['deleting_comment_id'] = None
 
         return context
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    form_class = PostCreateForm 
+    form_class = PostForm
     template_name = 'post/post_create.html'
 
+    def get_context_data(self, kwargs):
+            context = super().get_context_data(kwargs)
+            if 'images_formset' not in context:
+                context['images_formset'] = ImageFormSet(instance=self.object if self.object else Post())
+            return context
+
     def form_valid(self, form):
-        form.instance.author = self.request.user
-        post = form.save()
+        user = self.request.user
+        titulo = form.cleaned_data['title']
+        contenido = form.cleaned_data['content']
 
-        images = self.request.FILES.getlist('images')
+        palabras_prohibidas = ['spam', 'prohibido', 'baneo']
+        if any(p in titulo.lower() for p in palabras_prohibidas):
+            form.add_error('title', 'El título contiene palabras no permitidas.')
+            return self.form_invalid(form)
 
-        if images:
-            for image in images:
-                PostImage.objects.create(post=post, image=image)
-        else:
-            PostImage.objects.create(
-                post=post, image=settings.DEFAULT_POST_IMAGE)
+        if len(contenido) < 100:
+            form.add_error('content', 'El contenido debe tener al menos 100 caracteres.')
+            return self.form_invalid(form)
 
+        hoy = now().date()
+        posts_hoy = Post.objects.filter(author=user, created_at__date=hoy).count()
+        if posts_hoy >= 3:
+            form.add_error(None, "Ya has publicado el máximo de 3 posts hoy.")
+            return self.form_invalid(form)
+
+        form.instance.author = user
         return super().form_valid(form)
 
     def get_success_url(self):

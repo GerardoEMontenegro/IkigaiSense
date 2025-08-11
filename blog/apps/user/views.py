@@ -1,5 +1,5 @@
 from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, RedirectView
 from apps.user.forms import LoginForm, PerfilForm
 from .forms import CustomUserCreationForm, AvatarUpdateForm
 from django.views.generic.edit import FormView, CreateView, UpdateView
@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from apps.post.models import Post  # Importacion del modelo post para el perfil del usuario
 from .models import User  # Importacion del modelo User para el perfil del usuario
-
+from django.contrib.auth import login, logout
 
 class IndexView(TemplateView):
     template_name = 'index.html'  # Nombre de la plantilla a renderizar
@@ -40,7 +40,7 @@ class UserProfileView(LoginRequiredMixin, TemplateView):      # Vista para el pe
 class RegisterView(CreateView):      # Vista para el registro de usuarios
     template_name = 'auth/auth_register.html'      # Nombre de la plantilla a renderizar
     form_class = CustomUserCreationForm      # Clase del formulario a utilizar
-    success_url = reverse_lazy('user:login')   # URL a redirigir después de un registro exitoso
+    success_url = reverse_lazy('user:auth_login')   # URL a redirigir después de un registro exitoso
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -68,10 +68,12 @@ class LoginView(LoginViewDjango):  # Vista para el inicio de sesión
     def get_success_url(self):  # Método para obtener la URL de éxito después de un inicio de sesión exitoso
         return reverse_lazy('home')  # Redirige al usuario a la página principal después de un inicio de sesión exitoso
 
-class LogoutView(LogoutViewDjango):
-    def get_next_page(self):
-        return reverse_lazy('home')  # URL a redirigir después de un cierre de sesión exitoso
-
+class LogoutView(RedirectView):
+    template_name = 'home'
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('home')
+       
 class AvatarUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = AvatarUpdateForm
