@@ -1,5 +1,8 @@
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
 from django.views.generic import CreateView, TemplateView
-from apps.user.forms import RegisterForm, LoginForm, PerfilForm
+from apps.user.forms import LoginForm, PerfilForm
+from .forms import CustomUserCreationForm, AvatarUpdateForm
+from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView as LoginViewDjango, LogoutView as LogoutViewDjango 
@@ -7,6 +10,8 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from apps.post.models import Post  # Importacion del modelo post para el perfil del usuario
+from .models import User  # Importacion del modelo User para el perfil del usuario
+
 
 class IndexView(TemplateView):
     template_name = 'index.html'  # Nombre de la plantilla a renderizar
@@ -34,16 +39,27 @@ class UserProfileView(LoginRequiredMixin, TemplateView):      # Vista para el pe
 
 class RegisterView(CreateView):      # Vista para el registro de usuarios
     template_name = 'auth/auth_register.html'      # Nombre de la plantilla a renderizar
-    form_class = RegisterForm      # Clase del formulario a utilizar
-    success_url = reverse_lazy('home')   # URL a redirigir después de un registro exitoso
+    form_class = CustomUserCreationForm      # Clase del formulario a utilizar
+    success_url = reverse_lazy('user:login')   # URL a redirigir después de un registro exitoso
 
-    def form_valid(self, form):   # Método para manejar el formulario válido
-        response = super().form_valid(form)  # Llama al método form_valid de la clase padre
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        registered_group = Group.objects.get(name='Registered')  # Asegúrate que el grupo exista
+        self.object.groups.add(registered_group)  # Aquí se corrige el método
+        return response
+        
 
-        registered_group = Group.objects.get(name='Registered')  # Obtiene el grupo de usuarios registrados
-        self.object.groups.add(registered_group)  # Agrega el usuario al grupo de registrados
-        print("FILES:", self.request.FILES)  # Imprime los archivos subidos para depuración
-        return response  # Retorna la respuesta del formulario válido
+    def get_form(self, form_class=None):
+        """
+        Sobrescribimos get_form para pasar request.FILES al formulario (para avatar)
+        """
+        form_class = self.get_form_class()
+        return form_class(self.request.POST or None, self.request.FILES or None)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('user:user_profile')
+        return super().dispatch(request, *args, **kwargs)
     
 class LoginView(LoginViewDjango):  # Vista para el inicio de sesión
     template_name = 'auth/auth_login.html'  # Nombre de la plantilla a renderizar
@@ -56,3 +72,30 @@ class LogoutView(LogoutViewDjango):
     def get_next_page(self):
         return reverse_lazy('home')  # URL a redirigir después de un cierre de sesión exitoso
 
+class AvatarUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = AvatarUpdateForm
+    template_name = 'user/update_avatar.html'
+    success_url = reverse_lazy('user:user_profile')  # Ajustá según el nombre real de tu URL de perfil
+
+    def get_object(self):
+        return self.request.user
+    
+
+    
+class PasswordResetView(DjangoPasswordResetView):
+    template_name = 'ps_reset/password_reset_form.html'
+    email_template_name = 'ps_reset/password_reset_email.html'
+    subject_template_name = 'ps_reset/password_reset_subject.txt'
+    success_url = reverse_lazy('user:password_reset_done')
+
+    def get_email_context(self):
+        context = super().get_email_context()
+        context['domain'] = '127.0.0.1:3000'  # Cambia por tu frontend
+        context['protocol'] = 'http'
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Cambiar contraseña'
+        return context

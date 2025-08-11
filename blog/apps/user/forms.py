@@ -2,24 +2,36 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from apps.user.models import User
 from django import forms
 from django.contrib.auth import get_user_model
+import re
+
+
 
 User = get_user_model()
 
-class RegisterForm(UserCreationForm):   
-    class Meta: 
-        model = User 
-        fields = ('username', 'email', 'alias', 'avatar', 'password1', 'password2') 
-        widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-            'password': forms.PasswordInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-        }
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    alias = forms.CharField(required=False, max_length=30)
+
+    class Meta:
+        model = User
+        fields = ("username", "alias", "email", "password1", "password2")
+
+    def clean_password1(self):
+        password = self.cleaned_data.get("password1")
+
+        if len(password) < 8:
+            raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError("La contraseña debe incluir al menos una letra mayúscula.")
+
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError("La contraseña debe incluir al menos una letra minúscula.")
+
+        if not re.search(r'\d', password):
+            raise forms.ValidationError("La contraseña debe incluir al menos un número.")
+
+        return password
 
 class LoginForm(AuthenticationForm): 
     username = forms.CharField(label='Username or Email', max_length=150, 
@@ -39,3 +51,8 @@ class PerfilForm(forms.ModelForm):
             'file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-1 file:text-sm '
             'file:font-semibold file:bg-yellow-800 file:text-white hover:file:bg-orange-300'}),
         }
+
+class AvatarUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['avatar']

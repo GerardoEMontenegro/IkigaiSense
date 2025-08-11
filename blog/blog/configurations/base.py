@@ -31,9 +31,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
     'apps.user',
     'apps.post',
-  
+    'apps.categorias',
+    'apps.comments',
+    'widget_tweaks',
+    "django_browser_reload",
     
 ]
 
