@@ -1,9 +1,18 @@
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.shortcuts import get_object_or_404, render, redirect
+<<<<<<< HEAD
 from apps.post.models import Post, PostImage, Comment
 from apps.post.forms import PostForm, PostFilterForm, CommentForm, ImageFormSet
 from django.db.models import Count
 from django.contrib.auth.mixins import LoginRequiredMixin  #obliga al usuario a estar logueado para acceder a ciertas vistas
+=======
+from apps.post.models import Post, Comment
+from apps.post.forms import ImageFormSet, CommentForm
+from apps.post.forms import PostForm, PostFilterForm, CommentForm
+from django.db.models import Count
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.timezone import now
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.core.exceptions import PermissionDenied 
@@ -104,8 +113,13 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     form_class = PostForm
     template_name = 'post/post_create.html'
 
+<<<<<<< HEAD
     def get_context_data(self, kwargs):
             context = super().get_context_data(kwargs)
+=======
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
             if 'images_formset' not in context:
                 context['images_formset'] = ImageFormSet(instance=self.object if self.object else Post())
             return context

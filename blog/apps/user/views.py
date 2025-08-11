@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
 from django.views.generic import CreateView, TemplateView, RedirectView
 from apps.user.forms import LoginForm, PerfilForm
@@ -6,36 +7,54 @@ from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView as LoginViewDjango, LogoutView as LogoutViewDjango 
+=======
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 from django.shortcuts import redirect, render
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
+from django.views.generic import TemplateView, RedirectView
+from django.contrib.auth.models import Group
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+<<<<<<< HEAD
 from django.views import View
 from apps.post.models import Post  # Importacion del modelo post para el perfil del usuario
 from .models import User  # Importacion del modelo User para el perfil del usuario
 from django.contrib.auth import login, logout
+=======
+from django.contrib.auth.forms import AuthenticationForm
+from apps.post.models import Post
+from apps.user.forms import PerfilForm
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+from .forms import CustomUserCreationForm, AvatarUpdateForm
+from django.contrib.auth import login, logout
+from .models import User
 
-class IndexView(TemplateView):
-    template_name = 'index.html'  # Nombre de la plantilla a renderizar
-    def get_context_data(self, **kwargs): # Método para obtener el contexto de la vista
-        context = super().get_context_data(**kwargs) # Obtiene el contexto de la plantilla
-        context['posts'] = Post.objects.all().order_by('-created_at')[:5] # Obtiene los últimos 5 posts
-        return context  # Retorna el contexto actualizado
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
+
     
-#class UserProfileView(TemplateView):      # Vista para el perfil del usuario
-class UserProfileView(LoginRequiredMixin, TemplateView):      # Vista para el perfil del usuario 
-    template_name = 'user/user_profile.html'      # Nombre de la plantilla a renderizar
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'user/user_profile.html'
 
-    def get_context_data(self, **kwargs):      # Método para obtener el contexto de la vista
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        form = PerfilForm(instance=self.request.user)      # Crea una instancia del formulario con los datos del usuario actual
-        context['form'] = form      # Agrega el formulario al contexto
+        user = self.request.user
+        context['user'] = user
+        context['posts'] = user.posts.all().order_by('-created_at')
+        if 'form' not in context:
+            context['form'] = PerfilForm(instance=user)
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = PerfilForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect('user:user_profile')
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
     
-    def post(self, request): # Manejo del formulario de edición del perfil
-        form = PerfilForm(request.POST, request.FILES, instance=request.user) # Crea una instancia del formulario con los datos del usuario actual
-        if form.is_valid(): # Verifica si el formulario es válido
-            form.save() # Guarda los cambios en el perfil del usuario
-            return redirect('user:user_profile') # Redirige al perfil del usuario después de guardar los cambios
-        return render(request, 'user/user_profile.html', {'form': form}) # Renderiza la plantilla con el formulario si no es válido
 
 class RegisterView(CreateView):      # Vista para el registro de usuarios
     template_name = 'auth/auth_register.html'      # Nombre de la plantilla a renderizar
@@ -61,19 +80,37 @@ class RegisterView(CreateView):      # Vista para el registro de usuarios
             return redirect('user:user_profile')
         return super().dispatch(request, *args, **kwargs)
     
-class LoginView(LoginViewDjango):  # Vista para el inicio de sesión
-    template_name = 'auth/auth_login.html'  # Nombre de la plantilla a renderizar
-    authentication_form = LoginForm  # Clase del formulario de autenticación a utilizar
+class UserLoginView(FormView):
+    template_name = 'auth/auth_login.html'
+    form_class = AuthenticationForm
+    success_url = reverse_lazy('user:user_profile')
 
-    def get_success_url(self):  # Método para obtener la URL de éxito después de un inicio de sesión exitoso
-        return reverse_lazy('home')  # Redirige al usuario a la página principal después de un inicio de sesión exitoso
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        return super().form_valid(form)
 
+<<<<<<< HEAD
 class LogoutView(RedirectView):
     template_name = 'home'
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect('home')
        
+=======
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('user:user_profile')
+        return super().dispatch(request, *args, **kwargs)  # Redirige al usuario a la página principal después de un inicio de sesión exitoso
+
+class UserLogoutView(RedirectView):
+    template_name = 'auth/auth_login.html'
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('user:auth_login')
+    
+
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 class AvatarUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = AvatarUpdateForm
