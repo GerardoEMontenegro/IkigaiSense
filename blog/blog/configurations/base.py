@@ -22,6 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+LOGIN_URL = '/auth/login/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -31,9 +34,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
     'apps.user',
     'apps.post',
-  
+    'apps.categorias',
+    'apps.comments',
+    'widget_tweaks',
+    "django_browser_reload",
     
 ]
 

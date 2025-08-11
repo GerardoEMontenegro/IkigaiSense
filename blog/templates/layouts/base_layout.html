@@ -1,0 +1,48 @@
+{% load static %}
+{% load widget_tweaks %}
+{% load django_browser_reload %}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title_layout %} IKIGAI - BLOG {% endblock title_layout %}</title>
+    <link rel="icon" href="{% static 'assets/Ikigai.png' %}" type="image/x-icon"/>
+    <link rel="icon" href="{% static 'assets/favicon2.png' %}" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+
+    {% block extra_head_layout %} {% endblock extra_head_layout %}
+
+    <script type="module" src="{% static 'js/tailwind.js' %}"></script>
+    <style type = "text/tailwindcss">
+     @theme: {
+      --color-a: '#a3b18a', // Un verde suave para acent 
+      --color-b: '#588157',
+      --color-c: '#f9fbf6',     // Un fondo casi blanco con tinte verde
+      --color-d: '#243a2fff',   // Texto oscuro principal
+                    }
+    .font-tangerine{font-family:'Tangerine', sans-serif}
+    .font-spectral{font-family:'Spectral', serif; 
+                   font-weight: 400;
+                   font-style: 'normal'
+                }                    
+    </style>
+
+</head>
+<body class="bg-white">
+
+    {% include 'components/commons/heather.html' %} 
+
+    <main>
+        {% block content %}
+           
+        {% endblock %}
+    </main>
+
+    {% include 'components/commons/footer.html' %} 
+</body>
+</html>

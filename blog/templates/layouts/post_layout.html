@@ -1,0 +1,26 @@
+{%extends 'layouts/base_layout.hmtl' %}{% block title_layout %}
+ IKIGAI SEKAI - 
+ {% block title %}
+ ESTILO DE VIDA
+ {% endblock title %}
+
+{% endblock title_layout %}
+
+{% block extra_head_layout %} 
+
+    {% block extra_head %}
+    {% endblock extra_head %}
+
+{% endblock extra_head_layout %}
+
+{% block content_layout %}
+{% include 'components/commons/heather.html' %}
+
+<main class="min-h-[calc(100dvh_-_112px)]">
+    <div class="container mx-4 md:mx-8 bg-pink-500">
+{% block content %} Lista de posts {% endblock content %}
+    </div>  
+</main>
+{% include 'components/commons/footer.html' %}
+
+{% endblock content_layout %}
