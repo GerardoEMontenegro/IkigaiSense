@@ -4,33 +4,40 @@ from apps.post.models import Post, Comment, PostImage
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'allow_comments']
+        fields = ['title', 'category', 'content', 'allow_comments']  
         labels = {
             'title': 'Título',
+            'category': 'Categorías',  
             'content': 'Contenido',
-            'allow_comments': 'Permitir comentarios'
+            'allow_comments': 'Permitir comentarios',
         }
         widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Título del post', 'class': 'p-2'}),
-            'content': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Escribe el contenido del post aquí...', 'class': 'p-2'}),
-            'allow_comments': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+            'title': forms.TextInput(attrs={
+                'class': 'form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
+            }),
+            'category': forms.Select(attrs={  
+                'class': 'form-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6D9773]',
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-textarea w-full px-4 py-2 border border-gray-300 rounded-lg',
+                'rows': 8
+            }),
+            'allow_comments': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox h-5 w-5 text-[#6D9773] rounded focus:ring-[#6D9773]'
+            }),
         }
 
-class PostCreateForm(PostForm):
-    image = forms.ImageField(required=False)
+class PostImageForm(forms.ModelForm):
+    class Meta:
+        model = PostImage
+        fields = ['id', 'image']
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'form-file w-full px-4 py-2 border border-gray-300 rounded-lg',
+            })
+        }
 
-    def save(self, commit=True):
-        post = super().save(commit=False)
-        image = self.cleaned_data.get('image')
-
-        if commit:
-            post.save()
-            if image:
-                PostImage.objects.create(post=post, image=image)
-        return post
     
-class PostUpdateForm(PostForm):
-    pass
 
 class PostFilterForm(forms.Form):
     search_query = forms.CharField(
@@ -56,20 +63,21 @@ class PostFilterForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-
         fields = ['content']
-
-        labels = {
-            'content':  'Comentario'
-        }
-
         widgets = {
-            'content': forms.Textarea(
-                attrs={
-                    'rows': 3,
-                    'placeholder': 'Escribe tu comentario...',
-                    'class': 'p-2',
-                    
-                }
-            )
+            'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Escribí un comentario...'}),
         }
+        labels = {
+            'content': ''
+        }
+
+
+ImageFormSet = forms.inlineformset_factory(
+    Post,
+    PostImage,
+    form=PostImageForm,
+    extra=3,        # Muestra 3 campos vacíos para subir imágenes
+    can_delete=True,
+    max_num=5,
+    validate_max=True,
+)

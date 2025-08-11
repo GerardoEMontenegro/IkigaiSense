@@ -5,8 +5,9 @@
                        <li><a href="{% url 'home' %}">Inicio</a></li>
                        <li><a href="{% url 'user:user_profile' %}">Perfil</a></li>
                        <form method="POST" action = "{% url 'user:auth_logout' %}">
-                        {% csrf_token %}
-                       <button type="submit">Cerrar Sesión</button></form>
+                           {% csrf_token %}
+                           <button type="submit">Cerrar Sesión</button>
+                         </form>
                         {% if user.is_collaborator %}
                            <li><a href="{% url 'post:post_create' %}">Publicar</a></li>
                         {% endif %}
