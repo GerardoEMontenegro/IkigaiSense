@@ -1,34 +1,157 @@
 {% extends 'layouts/post_layout.html' %}
 
-{% block content %} 
-    
-    <h1 class="flex text-3xl text-[#2a4236] font-spectral p-20 font-bold justify-center mt-3">{{ object.title }}</h1>
-<div class="flex flex-col gap-14 mx-28 mt-3">
-         {% if object.image %}
-            <img src="{{ object.image.url }}" alt="{{ object.title }}" class="w-full h-auto object-cover rounded-lg shadow-lg mb-8">
-        {% endif %}
-        <p class="text-2xl text-[#19221d] font-spectral font-extralight text-">{{ object.content }}</p>
-        <p class="flex font-tangerine text-4xl text-[#19221d] justify-end mr-24 mt-0"><strong>{{ object.author }}</strong></p>
-</div>
-<form
-  method="post" action="{% url 'comments:comment_create' slug=post.slug %}" class="shadow-md rounded-lg p-6">
-  {% csrf_token %}
-  <h3 class="text-lg font-spectral font-semibold ml-24">Deja tu comentario:</h3>
-  <div class="flex flex-col mx-22 mt-3">
-    <textarea
-      name="content"
-      rows="3"
-      placeholder="Escribe aquí tu comentario..."
-      class="w-auto border text-3xl text-slate-800 font-tangerine border-gray-300 rounded-md my-10 p-3 focus:outline-none focus:ring-2 focus:ring-[#2a4236] transition"
-    >{{ comment_form.content.value }}</textarea>
-  </div>
-  {% if comment_form.content.errors %}
-    <p class="text-sm text-red-600 mt-1">{{ comment_form.content.errors.0 }}</p>
-  {% endif %}
+{% block content %}
 
-  <button type="submit"
-      class="flex justify-self-end border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] text-base font-spectral py-3 px-6 mr-28 hover:bg-[#203329] hover:text-amber-50 transition duration-300">
-        Publicar
-  </button>
-</form>
-{%endblock content%}
+    <!-- Título del post -->
+    <h1 class="flex text-3xl text-[#2a4236] font-spectral p-20 font-bold justify-center mt-3">
+        {{ object.title }}
+    </h1>
+
+    <!-- Contenido del post -->
+    <div class="flex flex-col gap-14 mx-28 mt-3">
+        {% if object.image %}
+            <img 
+                src="{{ object.image.url }}" 
+                alt="{{ object.title }}" 
+                class="w-full h-auto object-cover rounded-lg shadow-lg mb-8"
+            >
+        {% endif %}
+
+        <p class="text-2xl text-[#19221d] font-spectral font-extralight">
+            {{ object.content|linebreaks }}
+        </p>
+
+        <p class="flex font-tangerine text-4xl text-[#19221d] justify-end mr-24 mt-0">
+            <strong>{{ object.author }}</strong>
+        </p>
+    </div>
+
+    <!-- Formulario para nuevo comentario -->
+    <form method="post" class="shadow-md rounded-lg p-6 mt-8 mx-28">
+        {% csrf_token %}
+        <h3 class="text-lg font-spectral font-semibold">Deja tu comentario:</h3>
+
+        <div class="flex flex-col mt-3">
+            <textarea
+                name="content"
+                rows="3"
+                placeholder="Escribe aquí tu comentario..."
+                class="w-full border text-3xl text-slate-800 font-tangerine border-gray-300 rounded-md my-3 p-3 focus:outline-none focus:ring-2 focus:ring-[#2a4236] transition"
+            >{{ comment_form.content.value|default:'' }}</textarea>
+        </div>
+
+        {% if comment_form.content.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ comment_form.content.errors.0 }}</p>
+        {% endif %}
+
+        <button type="submit"
+                class="flex justify-end border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] text-base font-spectral py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">
+            Publicar
+        </button>
+    </form>
+
+    <!-- Lista de comentarios -->
+    <div class="mx-28 mt-12">
+        <h3 class="text-2xl font-spectral font-semibold text-[#2a4236] mb-6">Comentarios ({{ comments.count }})</h3>
+
+        {% for comment in comments %}
+            <div class="bg-gray-50 p-5 rounded-lg mb-5 relative">
+                <!-- Autor y contenido -->
+                <p class="font-tangerine text-xl text-[#19221d]"><strong>{{ comment.author }}</strong></p>
+                <p class="text-gray-800 mt-1 whitespace-pre-wrap">{{ comment.content|linebreaks }}</p>
+                <p class="text-xs text-gray-500 mt-2">{{ comment.created_at|timesince }} ago</p>
+
+                <!-- Botones: Editar y Eliminar (solo para el autor) -->
+                {% if user == comment.author %}
+                    <div class="mt-3 space-x-4">
+                        <!-- Botón de editar -->
+                        <button 
+                            type="button" 
+                            class="text-blue-600 hover:underline text-sm edit-toggle"
+                            data-id="{{ comment.id }}"
+                            data-content="{{ comment.content|escape }}">
+                            ✏️ Editar
+                        </button>
+
+                        <!-- Formulario para eliminar -->
+                        <form method="post" 
+                              action="{% url 'comments:comment_delete' pk=comment.id %}" 
+                              style="display: inline;" 
+                              onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?')">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-600 hover:underline text-sm">
+                                🗑️ Eliminar
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Formulario de edición (oculto por defecto) -->
+                    <form method="post" class="edit-form mt-4 p-3 bg-white border rounded-lg shadow hidden">
+                        {% csrf_token %}
+                        <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                        <textarea 
+                            name="edit_content" 
+                            rows="3" 
+                            class="w-full border border-gray-300 rounded-md p-2 font-tangerine text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2a4236]"
+                            placeholder="Edita tu comentario...">{{ comment.content|linebreaks }}</textarea>
+                        <div class="mt-2">
+                            <button type="submit" 
+                                    class="bg-[#445e35] text-white text-sm px-4 py-1 rounded hover:bg-[#203329]">
+                                Guardar
+                            </button>
+                            <button type="button" 
+                                    class="ml-2 text-gray-600 text-sm hover:underline cancel-edit">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-gray-600 text-sm">No hay comentarios aún. ¡Sé el primero en comentar!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Mensajes de feedback -->
+    {% if messages %}
+        <div class="mt-6 mx-28">
+            {% for message in messages %}
+                <div class="p-3 text-sm rounded-lg 
+                    {% if message.tags == 'error' %}
+                        bg-red-100 text-red-800
+                    {% else %}
+                        bg-green-100 text-green-800
+                    {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- JavaScript para editar comentarios -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mostrar formulario de edición
+            document.querySelectorAll('.edit-toggle').forEach(button => {
+                button.addEventListener('click', function () {
+                    const form = this.closest('div').querySelector('.edit-form');
+                    form.classList.remove('hidden');
+                    this.classList.add('hidden');
+                    this.nextElementSibling.classList.add('hidden'); // Oculta "Eliminar"
+                });
+            });
+
+            // Cancelar edición
+            document.querySelectorAll('.cancel-edit').forEach(button => {
+                button.addEventListener('click', function () {
+                    const form = this.closest('form');
+                    form.classList.add('hidden');
+                    const container = form.closest('div');
+                    container.querySelector('.edit-toggle').classList.remove('hidden');
+                    container.querySelector('form[action*="delete"]').classList.remove('hidden');
+                });
+            });
+        });
+    </script>
+
+{% endblock content %}

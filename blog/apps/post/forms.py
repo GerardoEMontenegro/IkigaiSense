@@ -48,6 +48,7 @@ ImageFormSet = forms.inlineformset_factory(
     max_num=5,
     validate_max=True,
 )
+
 class PostFilterForm(forms.Form):
     search_query = forms.CharField(
         required=False,

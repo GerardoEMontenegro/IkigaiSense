@@ -36,7 +36,7 @@ Crear post
     {% endfor %}
 
     <!-- 🔽 NUEVO: Formulario de imágenes -->
-    <div class="border-t pt-6 mt-6">
+   <div class="border-t pt-6 mt-6">
       <h3 class="text-lg font-semibold mb-4 text-[#3F4F36]">🖼️ Imágenes del post</h3>
       {{ images_formset.management_form }}
 
@@ -51,6 +51,7 @@ Crear post
                 <p class="text-red-600 text-sm mt-1">{{ img_form.image.errors.0 }}</p>
               {% endif %}
             </div>
+
 
             <!-- Checkbox para eliminar -->
             {% if img_form.instance.pk %}
