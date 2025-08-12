@@ -1,1 +1,80 @@
 
+{% extends 'layouts/general_layout.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
+
+{% block title %}
+Crear post
+{% endblock title %}
+
+{% block content %}
+<main class="max-w-xl mx-auto px-4 py-8 text-[#3F4F36]">
+  <h1 class="text-3xl font-bold mb-6">Crear nuevo artículo</h1>
+
+  <!-- ⚠️ Añadido: enctype para subir archivos -->
+  <form method="post" class="space-y-6" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Campos del post -->
+    {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block mb-1 font-medium">{{ field.label }}</label>
+        {% if field.widget_type == 'checkbox' %}
+          <div class="flex items-center space-x-2">
+            {{ field|add_class:"rounded border-gray-300 text-[#6D9773] focus:ring-[#6D9773]" }}
+            <span>{{ field.label }}</span>
+          </div>
+        {% else %}
+          {{ field|add_class:"w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]" }}
+        {% endif %}
+        {% if field.errors %}
+          <p class="text-red-600 text-sm mt-1">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <!-- 🔽 NUEVO: Formulario de imágenes -->
+    <div class="border-t pt-6 mt-6">
+      <h3 class="text-lg font-semibold mb-4 text-[#3F4F36]">🖼️ Imágenes del post</h3>
+      {{ images_formset.management_form }}
+
+      <div class="space-y-4">
+        {% for img_form in images_formset %}
+          <div class="p-4 border border-gray-200 rounded-md bg-gray-50">
+            <!-- Campo de imagen -->
+            <div>
+              {{ img_form.image.label_tag }}
+              {{ img_form.image|add_class:"w-full p-2 border border-gray-300 rounded-md" }}
+              {% if img_form.image.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ img_form.image.errors.0 }}</p>
+              {% endif %}
+            </div>
+
+            <!-- Checkbox para eliminar -->
+            {% if img_form.instance.pk %}
+              <div class="flex items-center mt-2">
+                {{ img_form.DELETE|add_class:"text-[#6D9773] focus:ring-[#6D9773]" }}
+                <label for="{{ img_form.DELETE.id_for_label }}" class="ml-1 text-sm text-gray-700">
+                  Eliminar esta imagen
+                </label>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Botón de envío -->
+    <button type="submit" class="bg-[#6D9773] text-white px-5 py-2 rounded hover:bg-[#5a8462] transition duration-200 font-medium">
+      📤 Publicar
+    </button>
+  </form>
+
+  <!-- Botón de volver -->
+  <a href="{% url 'home' %}" class="inline-block mt-6 text-[#6D9773] hover:underline text-sm">
+    ← Volver al inicio
+  </a>
+</main>
+{% endblock content %}
