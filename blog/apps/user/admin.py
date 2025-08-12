@@ -30,7 +30,7 @@ class CustomUserAdmin(admin.ModelAdmin):  # Clase personalizada para el administ
     is_admin.short_description = 'Es administrador'  # Descripción del campo en el administrador
     is_admin.boolean = True  # Muestra un icono en lugar de texto
 
-#DEFINIENDO  ACCIONES  PARA EL ADMINISTRADOR DE USUARIOS
+#/DEFINIENDO LAS ACCIONES PERSONALIZADAS PARA EL ADMINISTRADOR DE USUARIOS/
 
     def add_to_registered(self, request, queryset):
         registered_group = Group.objects.get_or_create (name='Registered')  # Obtiene el grupo 'Registered'
@@ -91,4 +91,3 @@ class CustomUserAdmin(admin.ModelAdmin):  # Clase personalizada para el administ
                ]  # Añade la acción personalizada al administrador
 
 admin.site.register(User, CustomUserAdmin)   #registro el modelo User en el admin
-

@@ -5,10 +5,10 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class RegisterForm(UserCreationForm):   
-    class Meta: 
-        model = User 
-        fields = ('username', 'email', 'alias', 'avatar', 'password1', 'password2') 
+class RegisterForm(UserCreationForm):   # Formulario para el registro de usuarios
+    class Meta: # Meta clase para definir el modelo y los campos del formulario
+        model = User # Modelo de usuario
+        fields = ('username', 'email', 'alias', 'avatar', 'password1', 'password2') # Campos del formulario: nombre de usuario, email, alias, avatar, contraseña1 y contraseña2
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -21,7 +21,7 @@ class RegisterForm(UserCreationForm):
             }),
         }
 
-class LoginForm(AuthenticationForm): 
+class LoginForm(AuthenticationForm): # Formulario para el inicio de sesión
     username = forms.CharField(label='Username or Email', max_length=150, 
                                widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}))
     password = forms.CharField(label='Password', 

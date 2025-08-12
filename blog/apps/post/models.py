@@ -1,6 +1,3 @@
-from django.db import models
-
-# Create your models here.
 from django.db import models      # Importando los modelos de Django
 from django.conf import settings    # Importando settings para el modelo de usuario
 from django.utils import timezone   # Importando timezone para la fecha y hora
@@ -39,7 +36,7 @@ class Post(models.Model):     # modelo para los posts
     
     @property
     def amount_images(self):             #cantidad de imagenes
-        return self.images.count()
+        return self.images.count()  #cantidad de imagenes que se muestran en el post
 
     def generate_unique_slug(self):   # metodo para generar un slug unico
         slug = slugify(self.title)   # Genera un slug a partir del titulo
@@ -91,7 +88,7 @@ def get_image_path(instance, filename):   # funcion para obtener la ruta de la i
     
 class PostImage(models.Model):   # modelo para las imagenes de los posts
     post = models.ForeignKey(    # relacion con el modelo
-        Post, on_delete=models.CASCADE, related_name='images')   # relacion con el post
+        Post, on_delete=models.CASCADE, related_name='images')   # relacion con el post que permite acceder a las imagenes del post
     image = models.ImageField(upload_to=get_image_path)   # ruta de la imagen
     active = models.BooleanField(default=True)    # estado de la imagen
     created_at = models.DateTimeField(auto_now_add=True)  # fecha de creacion
