@@ -11,7 +11,7 @@
         <p class="flex font-tangerine text-4xl text-[#19221d] justify-end mr-24 mt-0"><strong>{{ object.author }}</strong></p>
 </div>
 <form
-  method="post" action="{% url 'post:comment_create' slug=post.slug %}" class="shadow-md rounded-lg p-6">
+  method="post" action="{% url 'comments:comment_create' slug=post.slug %}" class="shadow-md rounded-lg p-6">
   {% csrf_token %}
   <h3 class="text-lg font-spectral font-semibold ml-24">Deja tu comentario:</h3>
   <div class="flex flex-col mx-22 mt-3">
