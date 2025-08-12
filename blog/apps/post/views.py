@@ -209,6 +209,3 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "El post se eliminó correctamente.")
         return super().delete(request, *args, **kwargs)
-
-
-
