@@ -1,6 +1,6 @@
 <div class="container mx-auto max-w-7xl px-4">
     <nav class="sticky top-0 bg-[#F6F2E6]">
-        <ul class="hidden md:flex items-center space-x-8 mt-4 text-lg text-[#2a4236] font-spectral font-medium">
+        <ul class="md:flex items-center space-x-8 mt-4 text-lg text-[#445e35] font-libertinus-bold">
             <li><a href="{% url 'home' %}">Inicio</a></li>
 
             {% if user.is_authenticated %}
@@ -13,7 +13,8 @@
                 <li>
                     <form method="POST" action="{% url 'user:auth_logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="text-red-600 hover:underline">Cerrar Sesión</button>
+                        <button type="submit" class="text-[#203329]
+                         hover:underline">Cerrar Sesión</button>
                     </form>
                 </li>
             {% else %}
@@ -21,17 +22,5 @@
                 <li><a href="{% url 'user:auth_register' %}">Registrarse</a></li>
             {% endif %}
         </ul>
-
-        <!-- Botón menú móvil -->
-        <div class="flex items-center space-x-4 md:hidden mt-4">
-            <button class="bg-spa-green text-white w-8 h-8 flex items-center justify-center rounded-md">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6h16M4 12h16m-7 6h7">
-                    </path>
-                </svg>
-            </button>
-        </div>
     </nav>
 </div>

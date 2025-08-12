@@ -10,22 +10,21 @@
 {% endblock %}
 
 {% block content %}
-    <main>
+    <main class="mb-20">
         <section class="relative h-[70vh] bg-cover bg-center text-white" style="background-image:url('static/assets/images/portada1.webp');">
             <div class="relative z-10 h-full flex flex-col justify-start items-center text-start pt-9">
-                <h1 class="text-6xl font-tangerine text-white mt-10">Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.</h1>
+                <h1 class="text-7xl font-tangerine text-shadow-lg/40 text-white mt-10">Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.</h1>
                 <div class="flex mt-auto mb-8 gap-7 space-x-10">
-                    <a href="" class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-slate-800 hover:text-amber-50 transition duration-300">Ùltimos posts </a>
-                    <a href="" class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-slate-800 hover:text-amber-50 transition duration-300">Categorías </a>
+                    <a href="" class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300" >Ùltimos posts </a>
+                    <a href="" class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">Categorías </a>
                 </div>
             </div>
         </section>
 
-        <!-- 4. SECCIÓN DE SERVICIOS / POSTS DEL BLOG -->
-       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Contenedor de la cuadrícula de posts -->
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div class="m-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
 
             {% for post in posts %}
             <!-- Inicio de la tarjeta de Post -->
@@ -37,8 +36,8 @@
                         {% if post_image %}
                             <img class="h-48 w-full object-cover" src="{{ post_image.image.url }}" alt="{{ post.title }}">
                         {% else %}
-                            <!-- Placeholder si no hay imagen, con el estilo de tu ejemplo -->
-                            <div class="h-48 w-full bg-[#9caf88] flex items-center justify-center">
+                            <!-- Placeholder si no hay imagen -->
+                            <div class="h-48 w-full bg-[#203329] flex items-center justify-center">
                                 <span class="text-white text-xl font-bold px-4 text-center">{{ post.title }}</span>
                             </div>
                         {% endif %}
@@ -57,7 +56,7 @@
                         </p>
                     </div>
                     <div class="mt-6">
-                        <a href="{% url 'post_detail' post.pk %}" class="text-base font-semibold text-green-700 hover:text-green-600">
+                        <a href="{% url 'post:post_detail' post.slug %}" class="text-lg font-spectral font-semibold text-green-700 hover:text-green-600">
                             Leer más &rarr;
                         </a>
                     </div>
@@ -67,7 +66,7 @@
             {% endfor %}
 
         </div>
-    </div>
+     </div>
     </main>
 
 {% endblock %}
