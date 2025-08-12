@@ -1,1 +1,80 @@
-asdasd
+{% extends 'layouts/general_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
+
+
+
+{% block title %}
+Perfil de {{ user.username }}
+{% endblock title %}
+
+
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F6F2E6] text-[#3F4F36] flex justify-center items-start py-12 px-4">
+
+  <div class="bg-white rounded-lg shadow-md max-w-lg w-full p-6 space-y-6">
+
+    <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">
+      Perfil de Usuario
+    </h2>
+
+    <div class="flex items-center space-x-6">
+      {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="rounded-full w-24 h-24 object-cover" />
+      {% else %}
+        <img src="{% static 'user/default/default-avatar-2.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
+      {% endif %}
+
+      <div>
+        <h3 class="text-xl font-semibold">{{ user.username }}</h3>
+        {% if user.alias %}
+          <p class="text-gray-600">Alias: {{ user.alias }}</p>
+        {% endif %}
+        <a href="{% url 'user:update_avatar' %}" class="mt-2 inline-block text-sm text-[#3F4F36] hover:underline">
+          Cambiar avatar
+        </a>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Es administrador:</strong> {{ user.is_admin|yesno:"Sí,No" }}</p>
+      <p><strong>Es colaborador:</strong> {{ user.is_collaborator|yesno:"Sí,No" }}</p>
+      <p><strong>Es registrado:</strong> {{ user.is_registered|yesno:"Sí,No" }}</p>
+    </div>
+
+    <div>
+      <a href="{% url 'user:auth_logout' %}" class="inline-block bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+        Cerrar sesión
+      </a>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
+
+      {% if posts %}
+        <ul class="list-disc list-inside space-y-2 max-h-60 overflow-y-auto">
+          {% for post in posts %}
+            <li>
+              <a href="{% url 'post:post_detail' post.slug %}" class="text-[#3F4F36] hover:underline">
+                {{ post.title }}
+              </a>
+              <span class="text-sm text-gray-500">- {{ post.created_at|date:"d M Y" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No has creado ningún post aún.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock content %}

@@ -1,94 +1,94 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin 
-from django.contrib.auth.models import Group  
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 from apps.user.models import User
 
 
-class CustomUserAdmin(admin.ModelAdmin):  # Clase personalizada para el administrador de usuarios
-    fieldsets = UserAdmin.fieldsets + (  # Agrega los campos personalizados al administrador de usuarios
-        (None, {'fields': ('alias', 'avatar')}),  # Campos personalizados: alias y avatar
+class CustomUserAdmin(BaseUserAdmin):
+    fieldsets = BaseUserAdmin.fieldsets + (
+        (None, {'fields': ('alias', 'avatar')}),
     )
 
-    add_fieldsets = (  # Agrega los campos personalizados al formulario de creación de usuarios
+    add_fieldsets = (
         (None, {
             'fields': ('username', 'email', 'alias', 'avatar', 'password1', 'password2')
-            }),
+        }),
     )
 
-    def is_registered(self, obj):   # Verifica si el usuario pertenece al grupo 'registered'
-        return obj.groups.filter(name= 'registered').exists()  # Verifica si el usuario pertenece al grupo 'registered'
-    is_registered.short_description = 'Es usuario registrado'  # Descripción del campo en el administrador
-    is_registered.boolean = True  # Muestra un icono en lugar de texto
+    def is_registered(self, obj):
+        return obj.groups.filter(name='Registered').exists()
+    is_registered.short_description = 'Es Usuario Registrado'
+    is_registered.boolean = True
 
-    def is_colaborator(self, obj):
-        return obj.groups.filter(name='Colaborator').exists()
-    is_colaborator.short_description = 'Es colaborador'  # Descripción del campo en el administrador
-    is_colaborator.boolean = True  # Muestra un icono en lugar de texto
+    def is_collaborator(self, obj):
+        return obj.groups.filter(name='Collaborators').exists()
+    is_collaborator.short_description = 'Es Colaborador'
+    is_collaborator.boolean = True
 
     def is_admin(self, obj):
-        return obj.groups.filter(name='Admin').exists()
-    is_admin.short_description = 'Es administrador'  # Descripción del campo en el administrador
-    is_admin.boolean = True  # Muestra un icono en lugar de texto
-
-#DEFINIENDO  ACCIONES  PARA EL ADMINISTRADOR DE USUARIOS
+        return obj.groups.filter(name='Admins').exists()
+    is_admin.short_description = 'Es Administrador'
+    is_admin.boolean = True
 
     def add_to_registered(self, request, queryset):
-        registered_group = Group.objects.get_or_create (name='Registered')  # Obtiene el grupo 'Registered'
+        registered_group = Group.objects.get(name='Registered')
         for user in queryset:
             user.groups.add(registered_group)
-        self.message_user(request, "Usuarios añadidos al grupo 'Registered'")  # Mensaje de éxito al añadir usuarios al grupo
-    
-    add_to_registered.short_description = "Añadir usuarios al grupo 'Registered'"  # Descripción de la acción
-    
-    def add_to_collaborators(self, request, queryset): # Añade usuarios al grupo 'Collaborators'
-        collaborators_group, created = Group.objects.get_or_create(name='Collaborators')  # Obtiene el grupo 'Collaborators'
+        self.message_user(
+            request, "Los usuarios seleccionados fueron añadidos al grupo 'Registered'.")
+    add_to_registered.short_description = 'Agregar a Usuarios Registrados'
+
+    def add_to_collaborators(self, request, queryset):
+        collaborators_group = Group.objects.get(name='Collaborators')
         for user in queryset:
             user.groups.add(collaborators_group)
-        self.message_user(request, "Usuarios añadidos al grupo 'Collaborators'")  # Mensaje de éxito al añadir usuarios al grupo
-    
-    add_to_collaborators.short_description = "Añadir usuarios al grupo 'Collaborators'"  # Descripción de la acción
+        self.message_user(
+            request, "Los usuarios seleccionados fueron añadidos al grupo 'Collaborators'.")
+    add_to_collaborators.short_description = 'Agregar a Colaboradores'
 
     def add_to_admins(self, request, queryset):
-        admin_group, created = Group.objects.get_or_create(name='Admin')  # Obtiene el grupo 'Admin'
+        admins_group = Group.objects.get(name='Admins')
         for user in queryset:
-            user.groups.add(admin_group)
-        self.message_user(request, "Usuarios añadidos al grupo 'Admin'")  # Mensaje de éxito al añadir usuarios al grupo
+            user.groups.add(admins_group)
+        self.message_user(
+            request, "Los usuarios seleccionados fueron añadidos al grupo 'Admins'.")
+    add_to_admins.short_description = 'Agregar a Administradores'
 
-    add_to_admins.short_description = "Añadir usuarios al grupo 'Admin'"  # Descripción de la acción
-
-    def remove_to_registered(self, request, queryset):
-        registered_group = Group.objects.get(name='Registered')  # Obtiene el grupo 'Registered'
+    def remove_from_registered(self, request, queryset):
+        registered_group = Group.objects.get(name='Registered')
         for user in queryset:
             user.groups.remove(registered_group)
-        self.message_user(request, "Usuarios eliminados del grupo 'Registered'")
+        self.message_user(
+            request, "Los usuarios seleccionados fueron removidos del grupo 'Registered'.")
+    remove_from_registered.short_description = 'Remover de Usuarios Registrados'
 
-    remove_to_registered.short_description = "Eliminar usuarios del grupo 'Registered'"  # Descripción de la acción
-
-    def remove_to_collaborators(self, request, queryset):
-        collaborators_group = Group.objects.get(name='Collaborators')  # Obtiene el grupo 'Collaborators'
-        for user in queryset:       
-            user.groups.remove(collaborators_group)
-        self.message_user(request, "Usuarios eliminados del grupo 'Collaborators'")
-
-    remove_to_collaborators.short_description = "Eliminar usuarios del grupo 'Collaborators'"  # Descripción de la acción
-
-    def remove_to_admins(self, request, queryset):
-        admin_group = Group.objects.get(name='Admin')  # Obtiene el grupo 'Admin'
+    def remove_from_collaborators(self, request, queryset):
+        collaborators_group = Group.objects.get(name='Collaborators')
         for user in queryset:
-            user.groups.remove(admin_group)
-        self.message_user(request, "Usuarios eliminados del grupo 'Admin'")
+            user.groups.remove(collaborators_group)
+        self.message_user(
+            request, "Los usuarios seleccionados fueron removidos del grupo 'Collaborators'.")
+    remove_from_collaborators.short_description = 'Remover de Colaboradores'
 
-    remove_to_admins.short_description = "Eliminar usuarios del grupo 'Admin'"  # Descripción de la acción
+    def remove_from_admins(self, request, queryset):
+        admins_group = Group.objects.get(name='Admins')
+        for user in queryset:
+            user.groups.remove(admins_group)
+        self.message_user(
+            request, "Los usuarios seleccionados fueron removidos del grupo 'Admins'.")
+    remove_from_admins.short_description = 'Remover de Administradores'
 
-    list_display = ('username', 'email', 'is_staff', 'is_registered', 'is_colaborator', 'is_admin', 'is_superuser')  # Campos a mostrar en la lista de usuarios
+    list_display = ('username', 'email', 'is_staff', 'is_superuser',
+                    'is_registered', 'is_collaborator', 'is_admin')
 
-    actions = [add_to_registered,
-               add_to_admins,
-               add_to_collaborators,
-               remove_to_registered,
-               remove_to_admins,
-               remove_to_collaborators,
-               ]  # Añade la acción personalizada al administrador
+    actions = [
+        add_to_registered,
+        add_to_collaborators,
+        add_to_admins,
+        remove_from_registered,
+        remove_from_collaborators,
+        remove_from_admins,
+    ]
 
-admin.site.register(User, CustomUserAdmin)   #registro el modelo User en el admin
 
+admin.site.register(User, CustomUserAdmin)

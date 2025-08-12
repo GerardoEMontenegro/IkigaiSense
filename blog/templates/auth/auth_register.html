@@ -40,7 +40,7 @@
         </div>
       {% endif %}
 
-      <form method="post" class="space-y-5" novalidate>
+      <form method="post" enctype="multipart/form-data" class="space-y-5" novalidate>
         {% csrf_token %}
 
         <div>

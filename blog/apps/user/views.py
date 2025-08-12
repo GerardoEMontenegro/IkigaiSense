@@ -44,11 +44,13 @@ class RegisterView(CreateView):      # Vista para el registro de usuarios
     success_url = reverse_lazy('user:auth_login')   # URL a redirigir después de un registro exitoso
 
     def form_valid(self, form):
+        print("Ejecutando form_valid")
         response = super().form_valid(form)
-        registered_group = Group.objects.get(name='Registered')  # Asegúrate que el grupo exista
-        self.object.groups.add(registered_group)  # Aquí se corrige el método
+        registered_group, created = Group.objects.get_or_create(name='Registered')
+        self.object.groups.add(registered_group)
+        print(f"Grupo asignado: {registered_group.name}, creado: {created}")
         return response
-        
+            
 
     def get_form(self, form_class=None):
         """
