@@ -6,7 +6,6 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from django.db.models import Avg
 from apps.post.forms import PostForm
-
 from apps.post.models import Post, Comment
 from apps.comments.forms import CommentForm
 
@@ -45,7 +44,7 @@ class PostDetailView(DetailView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
-    template_name = 'post/post_form.html'
+    template_name = 'post/post_create.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
