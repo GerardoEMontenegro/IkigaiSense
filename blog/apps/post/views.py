@@ -1,12 +1,11 @@
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.shortcuts import get_object_or_404, render, redirect
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.shortcuts import get_object_or_404, redirect
 from apps.post.models import Post, Comment
 from apps.post.forms import ImageFormSet, CommentForm
 from apps.post.forms import PostForm, PostFilterForm, CommentForm
 from django.db.models import Count
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import now
-from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.core.exceptions import PermissionDenied 
 
@@ -167,16 +166,30 @@ class PostDeleteView(DeleteView):
 class CommentCreateView(CreateView):
     model = Comment
     form_class = CommentForm
-    template_name = 'post/post_detail.html'
+    template_name = 'post/post_detail.html'  # vas a reutilizar la plantilla de detalle
+
+    def dispatch(self, request, *args, **kwargs):
+        # Asegurarte de que el post existe, y tenerlo disponible
+        self.post = get_object_or_404(Post, slug=kwargs['slug'])
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post = Post.objects.get(slug=self.kwargs['slug'])
-
+        form.instance.post = self.post
         return super().form_valid(form)
-    
+
     def get_success_url(self):
-        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
+        # Redirige otra vez al detalle del post
+        return reverse('post:post_detail', kwargs={'slug': self.post.slug})
+
+    def get_context_data(self, **kwargs):
+        # Inyecta en el contexto lo mismo que harías en tu DetailView
+        context = super().get_context_data(**kwargs)
+        context['post'] = self.post
+        context['comments'] = self.post.comments.all()
+        # el CreateView inyecta por defecto 'form', nosotros lo renombramos
+        context['comment_form'] = context['form']
+        return context
     
 class CommentUpdateView(UpdateView):
     model = Comment
