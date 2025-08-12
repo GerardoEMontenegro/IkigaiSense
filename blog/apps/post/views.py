@@ -75,25 +75,21 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         post = self.object
 
-        # Comentarios
         context['comments'] = post.comments.order_by('-created_at')
         context['comment_form'] = CommentForm() if post.allow_comments else None
 
-        # Rating del usuario actual
         user = self.request.user
         user_rating = None
         if user.is_authenticated:
             user_rating = post.ratings.filter(user=user).values_list('score', flat=True).first()
-        context['user_rating'] = user_rating or 0  # Asegura que no sea None
+        context['user_rating'] = user_rating or 0  
 
-        # Estadísticas de rating
         ratings_stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
         avg = ratings_stats['avg'] or 0
         count = ratings_stats['count'] or 0
         context['average_rating'] = round(avg, 1)
         context['ratings_count'] = count
 
-        # Generar estrellas para mostrar (★, ★½, ☆)
         full_stars = int(avg)
         has_half = (avg - full_stars) >= 0.25 and (avg - full_stars) < 0.75
         empty_stars = 5 - full_stars - (1 if has_half else 0)
@@ -106,7 +102,7 @@ class PostDetailView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()  # Carga el post
+        self.object = self.get_object()  
         post = self.object
 
         if not request.user.is_authenticated:
