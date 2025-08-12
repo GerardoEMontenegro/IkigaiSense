@@ -51,7 +51,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'post/post_form.html'
+    template_name = 'post/post_update.html'
 
     def test_func(self):
         post = self.get_object()
