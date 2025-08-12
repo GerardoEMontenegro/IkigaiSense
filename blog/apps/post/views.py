@@ -10,7 +10,6 @@ from apps.post.models import Post, Comment
 from apps.comments.forms import CommentForm
 
 
-# Lista de posts
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
@@ -18,7 +17,6 @@ class PostListView(ListView):
     paginate_by = 10
 
 
-# Detalle de un post
 class PostDetailView(DetailView):
     model = Post
     template_name = 'post/post_detail.html'
@@ -28,19 +26,17 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
 
         post = self.get_object()
-        # Lógica de rating / estrellas
-        average_rating = post.ratings.aggregate(avg_rating=Avg('value'))['avg_rating']
+        average_rating = post.ratings.aggregate(avg_rating=Avg('score'))['avg_rating']
         context['average_rating'] = average_rating if average_rating else 0
         context['stars'] = range(1, 6)
 
-        # Formulario de comentarios
         context['form'] = CommentForm()
         context['comments'] = Comment.objects.filter(post=post).order_by('-created_at')
 
         return context
 
 
-# Crear un post
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -52,7 +48,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# Editar un post
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
@@ -71,7 +66,6 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
 
-# Eliminar un post
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     success_url = reverse_lazy('post_list')
@@ -89,7 +83,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# Crear comentario
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
@@ -105,7 +98,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy('post_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-# Editar comentario
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -123,7 +115,6 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
 
 
-# Eliminar comentario
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'post/comment_confirm_delete.html'
