@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
+from django.views.generic import CreateView, TemplateView, RedirectView
+from apps.user.forms import LoginForm, PerfilForm
+from .forms import CustomUserCreationForm, AvatarUpdateForm
+from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.urls import reverse_lazy
+from django.contrib.auth.models import Group
+from django.contrib.auth.views import LoginView as LoginViewDjango, LogoutView as LogoutViewDjango 
+=======
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 from django.shortcuts import redirect, render
 from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
 from django.views.generic import TemplateView, RedirectView
@@ -5,6 +16,12 @@ from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+<<<<<<< HEAD
+from django.views import View
+from apps.post.models import Post  # Importacion del modelo post para el perfil del usuario
+from .models import User  # Importacion del modelo User para el perfil del usuario
+from django.contrib.auth import login, logout
+=======
 from django.contrib.auth.forms import AuthenticationForm
 from apps.post.models import Post
 from django.contrib.auth import get_user_model
@@ -13,6 +30,7 @@ from .forms import CustomUserCreationForm, AvatarUpdateForm
 from django.contrib.auth import login, logout
 from .models import User
 
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 
     
 class UserProfileView(LoginRequiredMixin, TemplateView):
@@ -58,6 +76,14 @@ class UserLoginView(FormView):
         login(self.request, user)
         return super().form_valid(form)
 
+<<<<<<< HEAD
+class LogoutView(RedirectView):
+    template_name = 'home'
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('home')
+       
+=======
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('user:user_profile')
@@ -70,6 +96,7 @@ class UserLogoutView(RedirectView):
         return redirect('user:auth_login')
     
 
+>>>>>>> faa0fdd21fb51247849676e4bc94ae8452f9c308
 class AvatarUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = AvatarUpdateForm
