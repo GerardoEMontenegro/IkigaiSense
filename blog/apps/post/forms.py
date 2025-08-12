@@ -27,6 +27,8 @@ class PostForm(forms.ModelForm):
             }),
         }
 
+
+
 class PostImageForm(forms.ModelForm):
     class Meta:
         model = PostImage
@@ -37,8 +39,15 @@ class PostImageForm(forms.ModelForm):
             })
         }
 
-    
-
+ImageFormSet = forms.inlineformset_factory(
+    Post,
+    PostImage,
+    form=PostImageForm,
+    extra=3,        # Muestra 3 campos vacíos para subir imágenes
+    can_delete=True,
+    max_num=5,
+    validate_max=True,
+)
 class PostFilterForm(forms.Form):
     search_query = forms.CharField(
         required=False,
@@ -58,26 +67,3 @@ class PostFilterForm(forms.Form):
             attrs={'class': 'w-full p-2'}
         )
     )
-
-
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['content']
-        widgets = {
-            'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Escribí un comentario...'}),
-        }
-        labels = {
-            'content': ''
-        }
-
-
-ImageFormSet = forms.inlineformset_factory(
-    Post,
-    PostImage,
-    form=PostImageForm,
-    extra=3,        # Muestra 3 campos vacíos para subir imágenes
-    can_delete=True,
-    max_num=5,
-    validate_max=True,
-)

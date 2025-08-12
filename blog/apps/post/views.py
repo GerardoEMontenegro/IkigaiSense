@@ -1,21 +1,21 @@
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.shortcuts import get_object_or_404, render, redirect
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.shortcuts import get_object_or_404, redirect
+from django.db.models import Avg, Count
 from apps.post.models import Post, Comment
-from apps.post.forms import ImageFormSet, CommentForm
-from apps.post.forms import PostForm, PostFilterForm, CommentForm
-from django.db.models import Count
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from apps.comments.forms import CommentForm
+from apps.post.forms import PostForm, PostFilterForm,  ImageFormSet
 from django.utils.timezone import now
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
-from django.core.exceptions import PermissionDenied 
 
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
     context_object_name = "posts"
 
-    paginate_by = 5   # Número de posts por página
+    paginate_by = 6   # Número de posts por página
 
     def get_queryset(self):
         queryset = Post.objects.all().annotate(comments_count=Count('comments'))
@@ -56,44 +56,53 @@ class PostListView(ListView):
 
         return context
 
-class PostDetailView(DetailView): #herenecia de TemplateView para crear una vista de detalle del post
+class PostDetailView(DetailView):
     model = Post
     template_name = 'post/post_detail.html'
-    context_object_name = 'post'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('comments', 'ratings')
+
+    def get_rating_stats(self, post):
+        stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
+        return stats['avg'] or 0, stats['count'] or 0
+
+    def get_star_display(self, avg):
+        full = int(avg)
+        half = 0.25 <= (avg - full) < 0.75
+        empty = 5 - full - (1 if half else 0)
+        return range(full), half, range(empty)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        active_images = self.object.images.filter(active=True)
+        post = self.object
+        user = self.request.user
 
-        context['active_images'] = active_images
-        context['add_comment_form'] = CommentForm()
+        # Comentarios y formulario
+        context['comments'] = post.comments.order_by('-created_at')
+        context['form'] = CommentForm() if post.allow_comments else None
 
-        edit_comment_id = self.request.GET.get('edit_comment')
-        if edit_comment_id:
-            comment = get_object_or_404(Comment, id=edit_comment_id)
+        # Rating del usuario
+        context['user_rating'] = None
+        if user.is_authenticated:
+            rating = post.ratings.filter(user=user).first()
+            if rating:
+                context['user_rating'] = rating.score
 
-            if comment.author == self.request.user:
-                context['editing_comment_id'] = comment.id
-                context['edit_comment_form'] = CommentForm(instance=comment)
-            else:
-                context['editing_comment_id'] = None
-                context['edit_comment_form'] = None
+        # Promedio y estrellas
+        avg, count = self.get_rating_stats(post)
+        full_stars, half_star, empty_stars = self.get_star_display(avg)
 
-        delete_comment_id = self.request.GET.get('delete_comment')
-        if delete_comment_id:
-            comment = get_object_or_404(Comment, id=delete_comment_id)
-
-            if (comment.author == self.request.user or
-                    (comment.post.author == self.request.user and not
-                     comment.author.is_admin and not
-                     comment.author.is_superuser) or
-                    self.request.user.is_superuser or
-                    self.request.user.is_staff or
-                    self.request.user.is_admin
-                ):
-                context['deleting_comment_id'] = comment.id
-            else:
-                context['deleting_comment_id'] = None
+        context.update({
+            'average_rating': avg,
+            'ratings_count': count,
+            'full_stars': full_stars,
+            'half_star': half_star,
+            'empty_stars': empty_stars,
+            'stars': [1, 2, 3, 4, 5],
+        })
 
         return context
 
@@ -134,18 +143,44 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('post:post_detail', kwargs={'slug': self.object.slug})
 
-class PostUpdateView(UpdateView):
+class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post/post_update.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
-    def test_func(self):   #herenecia de UpdateView para actualizar un post
-        post = self.get_object()   # Obtiene el post a actualizar
-        return post.author == self.request.user   # Verifica si el autor del post es el usuario actual
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['images_formset'] = ImageFormSet(
+                self.request.POST, self.request.FILES, instance=self.object
+            )
+        else:
+            context['images_formset'] = ImageFormSet(instance=self.object)
+        return context
 
-    def get_success_url(self):   #herenecia de UpdateView para actualizar un post
-        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.slug})   #herenecia de UpdateView para actualizar un post
+    def form_valid(self, form):
+        context = self.get_context_data()
+        images_formset = context['images_formset']
 
+        if form.is_valid() and images_formset.is_valid():
+            self.object = form.save()
+            images_formset.instance = self.object
+            images_formset.save()
+            messages.success(self.request, "El post y sus imágenes se actualizaron correctamente.")
+            return redirect(self.get_success_url())
+        else:
+            messages.error(self.request, "Hubo errores al actualizar el post. Por favor verifica los formularios.")
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def get_success_url(self):
+        return reverse('post:post_detail', kwargs={'slug': self.object.slug})
+
+    def test_func(self):
+        user = self.request.user
+        post = self.get_object()
+        return post.author == user or user.is_superuser or user.is_staff
 class PostDeleteView(DeleteView):
     model = Post   #herenecia de DeleteView para eliminar un post
     template_name = 'post/post_delete.html'
@@ -164,50 +199,4 @@ class PostDeleteView(DeleteView):
         post.delete()
         return redirect('post:post_list')  # Redirige a la lista de posts después de eliminar
 
-class CommentCreateView(CreateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'post/post_detail.html'
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        form.instance.post = Post.objects.get(slug=self.kwargs['slug'])
-
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
-    
-class CommentUpdateView(UpdateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'post/post_detail.html'
-
-    def get_object(self, queryset=None):
-        comment = super().get_object(queryset)
-        if comment.author != self.request.user:
-            raise PermissionDenied("No tienes permiso para editar este comentario.")
-        return comment
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
-
-class CommentDeleteView(DeleteView):
-    model = Comment
-    template_name = 'post/post_detail.html'
-
-    def get_object(self, queryset=None):
-        comment = super().get_object(queryset)
-        if (comment.author != self.request.user and
-            comment.post.author != self.request.user and
-            not self.request.user.is_superuser and
-            not self.request.user.is_staff and
-            not self.request.user.is_admin):
-            raise PermissionDenied("No tienes permiso para eliminar este comentario.")
-        return comment
-
-    def get_success_url(self):
-        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})

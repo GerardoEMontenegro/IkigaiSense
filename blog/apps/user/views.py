@@ -7,7 +7,6 @@ from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import AuthenticationForm
 from apps.post.models import Post
-from apps.user.forms import PerfilForm
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from .forms import CustomUserCreationForm, AvatarUpdateForm
@@ -24,24 +23,12 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         context['user'] = user
         context['posts'] = user.posts.all().order_by('-created_at')
-        if 'form' not in context:
-            context['form'] = PerfilForm(instance=user)
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = PerfilForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Perfil actualizado correctamente.")
-            return redirect('user:user_profile')
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-    
-
-class RegisterView(CreateView):      # Vista para el registro de usuarios
-    template_name = 'auth/auth_register.html'      # Nombre de la plantilla a renderizar
-    form_class = CustomUserCreationForm      # Clase del formulario a utilizar
-    success_url = reverse_lazy('user:auth_login')   # URL a redirigir después de un registro exitoso
+class RegisterView(CreateView):     
+    template_name = 'auth/auth_register.html'      
+    form_class = CustomUserCreationForm     
+    success_url = reverse_lazy('user:auth_login')   
 
     def form_valid(self, form):
         print("Ejecutando form_valid")
@@ -53,9 +40,6 @@ class RegisterView(CreateView):      # Vista para el registro de usuarios
             
 
     def get_form(self, form_class=None):
-        """
-        Sobrescribimos get_form para pasar request.FILES al formulario (para avatar)
-        """
         form_class = self.get_form_class()
         return form_class(self.request.POST or None, self.request.FILES or None)
 
@@ -77,7 +61,7 @@ class UserLoginView(FormView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('user:user_profile')
-        return super().dispatch(request, *args, **kwargs)  # Redirige al usuario a la página principal después de un inicio de sesión exitoso
+        return super().dispatch(request, *args, **kwargs)  
 
 class UserLogoutView(RedirectView):
     template_name = 'auth/auth_login.html'
@@ -90,8 +74,7 @@ class AvatarUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = AvatarUpdateForm
     template_name = 'user/update_avatar.html'
-    success_url = reverse_lazy('user:user_profile')  # Ajustá según el nombre real de tu URL de perfil
-
+    success_url = reverse_lazy('user:user_profile') 
     def get_object(self):
         return self.request.user
     
@@ -105,8 +88,7 @@ class PasswordResetView(DjangoPasswordResetView):
 
     def get_email_context(self):
         context = super().get_email_context()
-        context['domain'] = '127.0.0.1:3000'  # Cambia por tu frontend
-        context['protocol'] = 'http'
+        context['domain'] = '127.0.0.1:3000'  
         return context
 
     def get_context_data(self, **kwargs):
