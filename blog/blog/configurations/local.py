@@ -1,11 +1,9 @@
-from .base import *
+from .base import *    #importacion de ajustes en base.py
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 DATABASES = {
     'default': {
@@ -14,4 +12,4 @@ DATABASES = {
     }
 }
 
-os.environ["DJANGO_PORT"] = "3000"
+os.environ['DJANGO_PORT'] = '3000'

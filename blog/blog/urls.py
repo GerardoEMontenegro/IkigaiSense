@@ -17,18 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from blog.views import IndexView
-#from registro import views
-
+from apps.user.views import IndexView  
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', IndexView.as_view(), name='home'),
-    path('', include('apps.user.urls', namespace='user')),
-    path('', include('apps.post.urls', namespace='post')),
+    path('admin/', admin.site.urls), # URL para el panel de administración
+    path('', IndexView.as_view(), name='home'), # URL para la página de inicio
+    path('user/', include('apps.user.urls')), # URLs de la aplicación de usuario
+    path('posts/', include('apps.post.urls')), # URLs de la aplicación de posts
 ]
 
 if settings.DEBUG:
     from django.conf.urls.static import static
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
+
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # Servir archivos estáticos en modo DEBUG
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # Servir archivos multimedia en modo DEBUG    
