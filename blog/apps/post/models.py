@@ -6,8 +6,11 @@ from django.utils import timezone
 from django.utils.text import slugify 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 import uuid    
 import os    
+
+User = get_user_model()
 
 
 
@@ -70,6 +73,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    likes = models.ManyToManyField(User, related_name='liked_comments', blank=True)
+
 
     def __str__(self):
         return self.content
@@ -89,10 +94,6 @@ class Comment(models.Model):
         return f"{short_content} — {self.author}"
 
     def save(self, *args, **kwargs):
-        """
-        Opcional: puedes agregar validaciones personalizadas aquí.
-        Por ejemplo, evitar comentarios vacíos o con solo espacios.
-        """
         if not self.content or not self.content.strip():
             raise ValidationError("El comentario no puede estar vacío.")
         super().save(*args, **kwargs)

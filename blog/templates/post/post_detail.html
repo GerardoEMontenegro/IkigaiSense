@@ -2,18 +2,39 @@
 
 {% block content %}
 
-    <h1 class="flex text-3xl text-[#2a4236] font-spectral p-20 font-bold justify-center mt-3">
-        {{ object.title }}
-    </h1>
+<main>
+    <div class="max-w-4xl mx-auto px-4 py-8 text-[#3F4F36]">
+    <!-- Título -->
+    <h1 class="text-4xl font-bold mb-4">{{ object.title }}</h1>
 
-    <div class="flex flex-col gap-14 mx-28 mt-3">
-        {% if object.image %}
-            <img 
-                src="{{ object.image.url }}" 
-                alt="{{ object.title }}" 
-                class="w-full h-auto object-cover rounded-lg shadow-lg mb-8"
-            >
-        {% endif %}
+    <!-- Fecha y autor -->
+    <p class="text-sm text-gray-500 mb-6">
+        Publicado el {{ object.created_at|date:"d M Y" }} por {{ object.author }}
+    </p>
+
+    <!-- Imagen principal -->
+    {% if object.image %}
+        <img 
+            src="{{ object.image.url }}" 
+            alt="{{ object.title }}" 
+            class="w-full h-auto object-cover rounded-lg shadow-lg mb-8"
+        >
+    {% endif %}
+
+    <!-- 🔹 Imágenes adicionales de PostImage -->
+    {% if object.images.exists %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {% for img in object.images.all %}
+                {% if img.image %}
+                    <img 
+                        src="{{ img.image.url }}" 
+                        alt="Imagen de {{ object.title }}" 
+                        class="w-full h-64 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-200"
+                    >
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
 
         <p class="text-2xl text-[#19221d] font-spectral font-extralight">
             {{ object.content|linebreaks }}
@@ -23,6 +44,72 @@
             <strong>{{ object.author }}</strong>
         </p>
     </div>
+        <div class="rounded-lg p-6 mt-8 mx-28" >
+                     <!-- Volver -->
+        <a href="{% url 'home' %}" class=" inline-block mt-10 text-green-600 hover:underline text-sm font-medium">
+        ← Volver al inicio
+        
+          {% if user.is_authenticated and object.author  %}      
+      <div class="justify-end mt-6 flex flex-wrap gap-3">
+
+        </a>
+        <a href="{% url 'post:post_update' object.slug %}"
+           class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+          ✏️ Editar
+        </a>
+        <a href="{% url 'post:post_delete' object.slug %}"
+           class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+          Eliminar post
+        </a>
+      </div>
+      </div>
+       {% endif %}
+       </div>
+
+    <!-- PUNTUACIÓN -->
+<section class="shadow-md rounded-lg p-6 mt-8 mx-28">
+  <h3 class="text-2xl font-semibold text-gray-900 mb-4">⭐ Valoración</h3>
+
+  <p class="text-lg text-gray-700 mb-4" id="average-rating-display">
+    {% if average_rating %}
+      Promedio: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+      <span class="text-sm text-gray-500">({{ ratings_count }} voto{{ ratings_count|pluralize }})</span>
+    {% else %}
+      Este post aún no tiene puntuaciones.
+    {% endif %}
+  </p>
+
+  {% if user.is_authenticated %}
+        <form id="rating-form" class="flex flex-col gap-3" method="post" action="{% url 'post:post_rating' object.slug %}">
+      {% csrf_token %}
+
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-800">Tu puntuación:</label>
+        <div class="flex items-center gap-1" id="star-rating">
+          {% for i in stars %}
+            <svg data-value="{{ i }}"
+                 xmlns="http://www.w3.org/2000/svg"
+                 fill="{% if user_rating|default_if_none:0 >= i %}#facc15{% else %}#e5e7eb{% endif %}"
+                 viewBox="0 0 24 24"
+                 class="w-6 h-6 cursor-pointer hover:scale-110 transition-transform duration-150">
+              <path stroke="#d1d5db" stroke-width="1.5" d="M12 2l2.9 5.9L21 9.1l-4.5 4.4L17.8 21 12 17.8 6.2 21l1.3-7.5L3 9.1l6.1-1.2L12 2z"/>
+            </svg>
+          {% endfor %}
+        </div>
+      </div>
+
+      <input type="hidden" name="score" id="rating-input" value="{{ user_rating|default:0 }}">
+
+    </form>
+  {% else %}
+    <p class="text-gray-500 text-sm">Inicia sesión para calificar este post.</p>
+  {% endif %}
+</section>
+
+   
+  </article>
+
+  <hr class="my-10 border-gray-200">
 
     <form method="post" class="shadow-md rounded-lg p-6 mt-8 mx-28">
         {% csrf_token %}
@@ -58,6 +145,14 @@
 
                 {% if user == comment.author %}
                     <div class="mt-3 space-x-4">
+                        <button
+                            class="like-button text-sm text-gray-600 hover:text-green-600 items-center gap-1"
+                            data-comment-id="{{ comment.id }}"
+                            aria-pressed="{% if user in comment.likes.all %}true{% else %}false{% endif %}"
+                            type="button"
+                            >👍
+                            <span class="likes-count">{{ comment.likes.count }}</span>
+                        </button>
                         <button 
                             type="button" 
                             class="text-blue-600 hover:underline text-sm edit-toggle"
@@ -75,6 +170,7 @@
                                 🗑️ Eliminar
                             </button>
                         </form>
+
                     </div>
 
                     <form method="post" 
@@ -158,6 +254,71 @@
             }
         });
     });
+    document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('#star-rating svg');
+    const ratingInput = document.getElementById('rating-input');
+    const ratingForm = document.getElementById('rating-form');
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const ratingValue = parseInt(star.getAttribute('data-value'));
+        ratingInput.value = ratingValue;
+
+        // Actualiza colores de estrellas
+        stars.forEach(s => {
+          const val = parseInt(s.getAttribute('data-value'));
+          s.setAttribute('fill', val <= ratingValue ? '#facc15' : '#e5e7eb');
+        });
+
+        // Envía el formulario automáticamente
+        ratingForm.submit();
+      });
+    });
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+  const likeButtons = document.querySelectorAll('.like-button');
+
+  likeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const commentId = button.getAttribute('data-comment-id');
+
+      fetch(`/comment/${commentId}/like/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Accept': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.liked) {
+          button.classList.add('text-green-600');
+          button.setAttribute('aria-pressed', 'true');
+        } else {
+          button.classList.remove('text-green-600');
+          button.setAttribute('aria-pressed', 'false');
+        }
+        button.querySelector('.likes-count').textContent = data.likes_count;
+      });
+    });
+  });
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
 </script>
 
 {% endblock content %}

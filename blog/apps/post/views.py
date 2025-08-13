@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -8,6 +8,8 @@ from django.db.models import Avg, Count
 from apps.post.forms import PostForm, PostFilterForm
 from apps.post.models import Post, Comment, Rating
 from apps.comments.forms import CommentForm
+from django.views import View
+from django.http import JsonResponse
 
 
 class PostListView(ListView):
@@ -218,3 +220,68 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "El post se eliminó correctamente.")
         return super().delete(request, *args, **kwargs)
+
+
+class RatePostView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        post = get_object_or_404(Post, slug=slug)
+        
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+        try:
+            score = int(request.POST.get('score'))
+            if score < 1 or score > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Puntuación inválida. Debe ser entre 1 y 5.'
+                }, status=400)
+            messages.error(request, "Puntuación inválida.")
+            return redirect(post.get_absolute_url())
+
+        rating, created = Rating.objects.update_or_create(
+            post=post,
+            user=request.user,
+            defaults={'score': score}
+        )
+
+        avg_rating = Rating.objects.filter(post=post).aggregate(
+            avg=Avg('score'),
+            count=Count('id')
+        )
+        average = avg_rating['avg'] or 0
+        count = avg_rating['count']
+
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': 'Tu valoración fue enviada correctamente.',
+                'average_rating': round(average, 1),
+                'ratings_count': count
+            })
+
+        if created:
+            messages.success(request, "Gracias por valorar este post.")
+        else:
+            messages.success(request, "Tu valoración fue actualizada.")
+        return redirect(post.get_absolute_url())
+
+
+class CommentLikeToggleView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        comment = get_object_or_404(Comment, pk=pk)
+        user = request.user
+
+        if user in comment.likes.all():
+            comment.likes.remove(user)
+            liked = False
+        else:
+            comment.likes.add(user)
+            liked = True
+
+        return JsonResponse({
+            'liked': liked,
+            'likes_count': comment.likes.count(),
+        })
