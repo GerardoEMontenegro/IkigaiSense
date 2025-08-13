@@ -7,7 +7,6 @@ from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from django.views import View
 from django.db import transaction
-
 from apps.post.forms import PostForm, PostFilterForm, CategoryForm
 from apps.post.models import Post, Comment, Rating, Category
 from apps.comments.forms import CommentForm
@@ -17,14 +16,14 @@ from .forms import ImageFormSet
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'post'
+    context_object_name = 'posts'  # ← Aquí estaba el error
     paginate_by = 6
 
     def get_queryset(self):
         queryset = Post.objects.filter(approved_post=True).select_related('author', 'category').annotate(
-            comments_count=Count('comments'),
-            average_rating=Avg('ratings__score')
-        )
+        comments_count=Count('comments'),
+        avg_rating=Avg('ratings__score')  
+    )
         form = PostFilterForm(self.request.GET)
         if form.is_valid():
             search_query = form.cleaned_data.get('search_query')
@@ -41,7 +40,6 @@ class PostListView(ListView):
                 queryset = queryset.order_by(order_by)
             else:
                 queryset = queryset.order_by('-created_at')
-
         return queryset
 
     def get_context_data(self, **kwargs):

@@ -1,42 +1,42 @@
 {% extends 'layouts/post_layout.html' %}
 
 {% block content %}
-  <form method="get">
-      <div>
-          {{filter_form.search_query}}
-      </div>
-      <div>
-          {{filterform}}
-      </div>
+  <form method="get" class="mb-6 flex gap-2">
+      {{ filter_form.search_query }}
+      {{ filter_form.order_by }}
+      <button type="submit" class="px-4 py-2 bg-[#6D9773] text-white rounded-md">Filtrar</button>
+  </form>
 
   {% for post in posts %}
-  <article class="my-8 p-6 bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
-    {% if post.image %}
-      <img src="{{ post.image.url }}" 
-           alt="Imagen de {{ post.title }}"
-           class="w-full h-48 object-cover mb-4 rounded"/>
-    {% endif %}
+    <article class="my-8 p-6 bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
+      {% with post.images.first as first_image %}
+        {% if first_image %}
+          <img src="{{ first_image.image.url }}" 
+               alt="Imagen de {{ post.title }}"
+               class="w-full h-48 object-cover mb-4 rounded"/>
+        {% endif %}
+      {% endwith %}
 
-    <h2 class="text-2xl font-libertinus-bold text-[#445e35] mb-2">
-      <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] hover:text-3xl transition-colors">
-        {{ post.title }}
-      </a>
-    </h2>
+      <h2 class="text-2xl font-libertinus-bold text-[#445e35] mb-2">
+        <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] hover:text-3xl transition-colors">
+          {{ post.title }}
+        </a>
+      </h2>
 
-    <p class="text-gray-600 text-sm mb-4">
-      {{ post.created_at|date:"d M Y" }} | Categoría: 
-      {% for category in post.categories.all %}
-        <span class="text-indigo-600">{{ category.name }}</span>{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-    </p>
+      <p class="text-gray-600 text-sm mb-4">
+        {{ post.created_at|date:"d M Y" }} | Categoría: 
+        {% if post.category %}
+          <span class="text-indigo-600">{{ post.category.title }}</span>
+        {% endif %}
+      </p>
 
-    <p class="text-[#445e35] mb-4 line-clamp-3">
-      {{ post.content|truncatewords:30 }}
-    </p>
+      <p class="text-[#445e35] mb-4 line-clamp-3">
+        {{ post.content|truncatewords:30 }}
+      </p>
 
-    <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] transition-colors"> Leer más →</a>
-  </article>
+      <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] transition-colors"> Leer más →</a>
+    </article>
   {% empty %}
-  <p class="font-libertinus-bold text-[#445e35]">No hay posts disponibles.</p>
+    <p class="font-libertinus-bold text-[#445e35]">No hay posts disponibles.</p>
   {% endfor %}
 {% endblock content %}
