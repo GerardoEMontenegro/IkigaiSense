@@ -1,32 +1,35 @@
 {% extends 'layouts/general_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
-{% load django_browser_reload %}
-{% django_browser_reload_script %}
 
 {% block title_layout %}
 {% endblock %}
 
 {% block content %}
 <main class="mb-20">
-    <!-- Sección de portada -->
-    <section class="relative h-[70vh] bg-cover bg-center text-white" style="background-image:url('{% static 'assets/images/portada1.webp' %}');">
-        <div class="relative z-10 h-full flex flex-col justify-start items-center text-start pt-9 px-4 text-center">
-            <h1 class="text-5xl md:text-7xl font-tangerine text-shadow-lg/40 text-white mt-10 max-w-5xl">
-                Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.
-            </h1>
-            <div class="flex flex-wrap justify-center mt-auto mb-8 gap-5">
-                <a href="{% url 'post:post_list' %}" 
-                   class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">
-                   Últimos posts
-                </a>
+   {% static 'assets/images/portada1.webp' as background_image %}
+
+<!-- Sección de portada -->
+<section class="relative h-[70vh] bg-cover bg-center text-white" 
+         style="background-image: url('{{ background_image }}');">
+    <div class="relative z-10 h-full flex flex-col justify-start items-center text-start pt-9 px-4 text-center">
+        <h1 class="text-5xl md:text-7xl font-tangerine text-shadow-lg/40 text-white mt-10 max-w-5xl">
+            Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.
+        </h1>
+        <div class="flex flex-wrap justify-center mt-auto mb-8 gap-5">
+            <a href="{% url 'post:post_list' %}" 
+               class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">
+               Últimos posts
+            </a>
+            {% if user.is_staff %}
                 <a href="{% url 'post:category_create' %}" 
                    class="border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] font-spectral font-bold py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">
-                   Categorías
+                   Crear categoría
                 </a>
-            </div>
+            {% endif %}
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Lista de posts -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
