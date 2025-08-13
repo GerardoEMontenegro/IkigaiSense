@@ -319,11 +319,16 @@ class CommentLikeToggleView(LoginRequiredMixin, View):
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForm
-    template_name = 'category_create.html'
+    template_name = 'category/category_create.html'
     success_url = reverse_lazy('post:category_list')
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
-    template_name = 'category_list.html'
+    template_name = 'category/category_list.html'
     context_object_name = 'categories'
+
+class CategoryDeleteView(DeleteView):
+    model = Category
+    template_name = 'category/category_delete.html'
+    success_url = reverse_lazy('category_list.html')

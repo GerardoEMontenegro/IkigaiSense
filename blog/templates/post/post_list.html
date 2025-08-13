@@ -1,4 +1,8 @@
 {% extends 'layouts/post_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
 
 {% block content %}
   <form method="get">
@@ -8,9 +12,8 @@
       <div>
           {{filterform}}
       </div>
-
   {% for post in posts %}
-  <article class="my-8 p-6 bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
+   <article class="my-8 p-6 bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
     {% if post.image %}
       <img src="{{ post.image.url }}" 
            alt="Imagen de {{ post.title }}"
@@ -27,15 +30,15 @@
       {{ post.created_at|date:"d M Y" }} | Categoría: 
       {% for category in post.categories.all %}
         <span class="text-indigo-600">{{ category.name }}</span>{% if not forloop.last %}, {% endif %}
-      {% endfor %}
     </p>
+        {% endfor %}  
 
     <p class="text-[#445e35] mb-4 line-clamp-3">
       {{ post.content|truncatewords:30 }}
     </p>
 
     <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] transition-colors"> Leer más →</a>
-  </article>
+   </article>
   {% empty %}
   <p class="font-libertinus-bold text-[#445e35]">No hay posts disponibles.</p>
   {% endfor %}
