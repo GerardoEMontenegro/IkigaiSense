@@ -11,12 +11,11 @@ Perfil de {{ user.username }}
 {% endblock title %}
 
 
-
 {% block content %}
 
-<div class="min-h-screen bg-[#F6F2E6] text-[#3F4F36] flex justify-center items-start py-12 px-4">
+<div class="min-h-screen bg-[#F6F2E6] text-[#3F4F36] flex justify-center items-start gap-10 py-12 px-12">
 
-  <div class="bg-white rounded-lg shadow-md max-w-lg w-full p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow-md w-1/2 p-6 space-y-6">
 
     <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">
       Perfil de Usuario
@@ -52,11 +51,13 @@ Perfil de {{ user.username }}
         Cerrar sesión
       </a>
     </div>
+</div>
 
-    <div class="mt-8">
-      <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
+<div class="bg-white rounded-lg shadow-md w-1/2 p-6 space-y-6">
+      
+ <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
 
-      {% if posts %}
+    {% if posts %}
         <ul class="list-disc list-inside space-y-2 max-h-60 overflow-y-auto">
           {% for post in posts %}
             <li>
@@ -72,9 +73,9 @@ Perfil de {{ user.username }}
       {% endif %}
     </div>
 
-  </div>
-
 </div>
+
+
 
 
 {% endblock content %}

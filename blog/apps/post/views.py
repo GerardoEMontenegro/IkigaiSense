@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.db.models import Avg, Count
-from apps.post.forms import PostForm
+from apps.post.forms import PostForm, PostFilterForm
 from apps.post.models import Post, Comment, Rating
 from apps.comments.forms import CommentForm
 
@@ -13,8 +13,48 @@ from apps.comments.forms import CommentForm
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+    context_object_name = "posts"
+
+    paginate_by = 6   # Número de posts por página
+
+    def get_queryset(self):
+        queryset = Post.objects.all().annotate(comments_count=Count('comments'))
+        search_query = self.request.GET.get('search_query', '')
+        order_by = self.request.GET.get('order_by', '-created_at')
+
+        if search_query:
+            queryset = queryset.filter(title__icontains=search_query) | queryset.filter(
+                author__username__icontains=search_query)
+
+        return queryset.order_by(order_by)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter_form'] = PostFilterForm(self.request.GET)
+
+        if context.get('is_paginated', False):
+            query_params = self.request.GET.copy()
+            query_params.pop('page', None)
+
+            pagination = {}
+            page_obj = context['page_obj']
+            paginator = context['paginator']
+
+            if page_obj.number > 1:
+                pagination['first_page'] = f'?{query_params.urlencode()}&page={paginator.page_range[0]}'
+
+            if page_obj.has_previous():
+                pagination['previous_page'] = f'?{query_params.urlencode()}&page={page_obj.number - 1}'
+
+            if page_obj.has_next():
+                pagination['next_page'] = f'?{query_params.urlencode()}&page={page_obj.number + 1}'
+
+            if page_obj.number < paginator.num_pages:
+                pagination['last_page'] = f'?{query_params.urlencode()}&page={paginator.num_pages}'
+
+            context['pagination'] = pagination
+
+        return context
 
 
 class PostDetailView(DetailView):
@@ -47,13 +87,13 @@ class PostDetailView(DetailView):
         context['user_rating'] = user_rating or 0  # Asegura que no sea None
 
         # Estadísticas de rating
+
         ratings_stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
         avg = ratings_stats['avg'] or 0
         count = ratings_stats['count'] or 0
         context['average_rating'] = round(avg, 1)
         context['ratings_count'] = count
 
-        # Generar estrellas para mostrar (★, ★½, ☆)
         full_stars = int(avg)
         has_half = (avg - full_stars) >= 0.25 and (avg - full_stars) < 0.75
         empty_stars = 5 - full_stars - (1 if has_half else 0)
@@ -67,25 +107,26 @@ class PostDetailView(DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()  # Carga el post
+
         post = self.object
 
         if not request.user.is_authenticated:
             messages.error(request, "Debes iniciar sesión para interactuar.")
             return self.get(request, *args, **kwargs)
 
-        # --- Manejar nuevo comentario ---
+
         if 'content' in request.POST:
             return self.handle_comment_create(request, post)
 
-        # --- Manejar calificación (rating) ---
         elif 'score' in request.POST:
             return self.handle_rating(request, post)
 
-        # --- Manejar edición de comentario (si se implementa inline) ---
         elif 'edit_content' in request.POST:
             return self.handle_comment_update(request, post)
 
-        # Cualquier otro caso: recarga
+
+
+
         return self.get(request, *args, **kwargs)
 
     def handle_comment_create(self, request, post):
@@ -147,7 +188,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'post/post_form.html'
+    template_name = 'post/post_update.html'
 
     def test_func(self):
         post = self.get_object()
@@ -177,6 +218,3 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "El post se eliminó correctamente.")
         return super().delete(request, *args, **kwargs)
-
-
-

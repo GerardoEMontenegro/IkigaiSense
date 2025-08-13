@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
@@ -8,8 +8,6 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 from django.views.generic.edit import FormView, CreateView, UpdateView
-
-from apps.post.models import Post
 from .forms import CustomUserCreationForm, AvatarUpdateForm
 from .models import User
 
