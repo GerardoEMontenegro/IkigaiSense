@@ -11,6 +11,10 @@ urlpatterns = [
     path('posts/<slug:slug>/delete/', views.PostDeleteView.as_view(), name='post_delete'),   # Vista para eliminar un post específico
     path('posts/<slug:slug>/update/', views.PostUpdateView.as_view(), name='post_update'),   # Vista para actualizar un post específico
 
+    path('category/list/', views.CategoryListView.as_view(), name='category_list'),
+    path('category/create/', views.CategoryCreateView.as_view(), name='category_create'),
+    
+
     path('posts/<slug:slug>/comments/create/', views.CommentCreateView.as_view(), name='comment_create'),   # Vista para crear un nuevo comentario en un post
     path('comments/<uuid:pk>/update/', views.CommentUpdateView.as_view(), name='comment_update'),   # Vista para actualizar un comentario específico
     path('comments/<uuid:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),   # Vista para eliminar un comentario específico

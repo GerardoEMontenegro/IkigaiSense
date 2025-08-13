@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.shortcuts import get_object_or_404, render, redirect
-from apps.post.models import Post, PostImage, Comment
-from apps.post.forms import PostForm, PostFilterForm, CommentForm, PostCreateForm
+from apps.post.models import Post, PostImage, Comment, Category
+from apps.post.forms import PostForm, PostFilterForm, CommentForm, PostCreateForm, CategoryForm
 from django.db.models import Count
 #from django.contrib.auth.mixins import LoginRequiredMixin  #obliga al usuario a estar logueado para acceder a ciertas vistas
 from django.conf import settings
@@ -195,3 +195,15 @@ class CommentDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
+
+class CategoryCreateView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_create.html'
+    success_url = reverse_lazy('category_list')  # Reemplaza con la URL de redirección deseada
+
+class CategoryListView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_list.html'
+    success_url = reverse_lazy('category_list')  

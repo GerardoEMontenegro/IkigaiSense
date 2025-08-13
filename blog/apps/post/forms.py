@@ -1,5 +1,5 @@
 from django import forms
-from apps.post.models import Post, Comment, PostImage
+from apps.post.models import Post, Comment, PostImage, Category
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -72,4 +72,15 @@ class CommentForm(forms.ModelForm):
                     
                 }
             )
+        }
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['title']  # Asegúrate de que 'name' es un campo de tu modelo Category
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Introduce el nombre de la categoría'
+            })
         }
