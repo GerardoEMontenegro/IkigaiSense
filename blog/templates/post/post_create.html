@@ -1,19 +1,11 @@
-
+<!-- post_create.html -->
 {% extends 'layouts/post_layout.html' %}
 {% load widget_tweaks %}
-{% load static %}
-{% load django_browser_reload %}
-{% django_browser_reload_script %}
-
-{% block title %}
-Crear post
-{% endblock title %}
-
 {% block content %}
+
 <main class="max-w-xl mx-auto px-4 py-8 text-[#3F4F36]">
   <h1 class="text-3xl font-bold mb-6">Crear nuevo artículo</h1>
 
-  <!-- ⚠️ Añadido: enctype para subir archivos -->
   <form method="post" class="space-y-6" enctype="multipart/form-data">
     {% csrf_token %}
 
@@ -21,7 +13,7 @@ Crear post
     {% for field in form %}
       <div>
         <label for="{{ field.id_for_label }}" class="block mb-1 font-medium">{{ field.label }}</label>
-        {% if field.widget_type == 'checkbox' %}
+        {% if field.field.widget.input_type == 'checkbox' %}
           <div class="flex items-center space-x-2">
             {{ field|add_class:"rounded border-gray-300 text-[#6D9773] focus:ring-[#6D9773]" }}
             <span>{{ field.label }}</span>
@@ -35,7 +27,7 @@ Crear post
       </div>
     {% endfor %}
 
-    <!-- 🔽 NUEVO: Formulario de imágenes -->
+    <!-- Imágenes del post -->
     <div class="border-t pt-6 mt-6">
       <h3 class="text-lg font-semibold mb-4 text-[#3F4F36]">🖼️ Imágenes del post</h3>
       {{ images_formset.management_form }}
@@ -52,7 +44,7 @@ Crear post
               {% endif %}
             </div>
 
-            <!-- Checkbox para eliminar -->
+            <!-- Checkbox para eliminar (solo si ya existe) -->
             {% if img_form.instance.pk %}
               <div class="flex items-center mt-2">
                 {{ img_form.DELETE|add_class:"text-[#6D9773] focus:ring-[#6D9773]" }}
@@ -73,9 +65,9 @@ Crear post
   </form>
 
   <!-- Botón de volver -->
-  <a href="{% url 'home' %}" class="inline-block mt-6 text-[#6D9773] hover:underline text-sm">
-    ← Volver al inicio
+  <a href="{% url 'post:post_list' %}" class="inline-block mt-6 text-[#6D9773] hover:underline text-sm">
+    ← Volver al listado
   </a>
 </main>
 
-{% endblock content %}
+{% endblock %}

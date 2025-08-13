@@ -27,6 +27,8 @@ urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     path('', include('apps.user.urls', namespace='user')),
     path('', include('apps.post.urls', namespace='post')),
+    path('', include('apps.comments.urls', namespace='comments')),
+
 ]
 
 if settings.DEBUG:

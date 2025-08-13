@@ -1,54 +1,67 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
+# views.py
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.conf import settings
 from django.urls import reverse_lazy
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
+from django.http import JsonResponse
+from django.views import View
+from django.db import transaction
+
 from apps.post.forms import PostForm, PostFilterForm
 from apps.post.models import Post, Comment, Rating
 from apps.comments.forms import CommentForm
+from .forms import ImageFormSet
 
 
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = "posts"
-
-    paginate_by = 6   # Número de posts por página
+    context_object_name = 'post'  
+    paginate_by = 6
 
     def get_queryset(self):
-        queryset = Post.objects.all().annotate(comments_count=Count('comments'))
-        search_query = self.request.GET.get('search_query', '')
-        order_by = self.request.GET.get('order_by', '-created_at')
+        queryset = Post.objects.filter(approved_post=True).select_related('author', 'category').annotate(
+            comments_count=Count('comments'),
+            average_rating=Avg('ratings__score')
+        )
+        form = PostFilterForm(self.request.GET)
+        if form.is_valid():
+            search_query = form.cleaned_data.get('search_query')
+            order_by = form.cleaned_data.get('order_by')
 
-        if search_query:
-            queryset = queryset.filter(title__icontains=search_query) | queryset.filter(
-                author__username__icontains=search_query)
+            if search_query:
+                queryset = queryset.filter(
+                    Q(title__icontains=search_query) |
+                    Q(content__icontains=search_query) |
+                    Q(author__username__icontains=search_query)
+                )
 
-        return queryset.order_by(order_by)
+            if order_by:
+                queryset = queryset.order_by(order_by)
+            else:
+                queryset = queryset.order_by('-created_at')
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filter_form'] = PostFilterForm(self.request.GET)
 
-        if context.get('is_paginated', False):
+        if context.get('is_paginated'):
             query_params = self.request.GET.copy()
             query_params.pop('page', None)
-
-            pagination = {}
             page_obj = context['page_obj']
             paginator = context['paginator']
 
+            pagination = {}
             if page_obj.number > 1:
-                pagination['first_page'] = f'?{query_params.urlencode()}&page={paginator.page_range[0]}'
-
+                pagination['first_page'] = f'?{query_params.urlencode()}&page=1'
             if page_obj.has_previous():
-                pagination['previous_page'] = f'?{query_params.urlencode()}&page={page_obj.number - 1}'
-
+                pagination['previous_page'] = f'?{query_params.urlencode()}&page={page_obj.previous_page_number()}'
             if page_obj.has_next():
-                pagination['next_page'] = f'?{query_params.urlencode()}&page={page_obj.number + 1}'
-
+                pagination['next_page'] = f'?{query_params.urlencode()}&page={page_obj.next_page_number()}'
             if page_obj.number < paginator.num_pages:
                 pagination['last_page'] = f'?{query_params.urlencode()}&page={paginator.num_pages}'
 
@@ -62,13 +75,14 @@ class PostDetailView(DetailView):
     template_name = 'post/post_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-    context_object_name = 'post'
+    context_object_name = 'object'
 
     def get_queryset(self):
-      
         return Post.objects.select_related('author', 'category').prefetch_related(
             'comments__author',
-            'ratings'
+            'comments__likes',
+            'ratings',
+            'images'
         )
 
     def get_context_data(self, **kwargs):
@@ -78,20 +92,20 @@ class PostDetailView(DetailView):
         context['comments'] = post.comments.order_by('-created_at')
         context['comment_form'] = CommentForm() if post.allow_comments else None
 
-        user = self.request.user
         user_rating = None
-        if user.is_authenticated:
-            user_rating = post.ratings.filter(user=user).values_list('score', flat=True).first()
-        context['user_rating'] = user_rating or 0  
+        if self.request.user.is_authenticated:
+            user_rating = post.ratings.filter(user=self.request.user).first()
+        context['user_rating'] = user_rating.score if user_rating else 0
 
         ratings_stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
         avg = ratings_stats['avg'] or 0
-        count = ratings_stats['count'] or 0
+        count = ratings_stats['count']
+
         context['average_rating'] = round(avg, 1)
         context['ratings_count'] = count
 
         full_stars = int(avg)
-        has_half = (avg - full_stars) >= 0.25 and (avg - full_stars) < 0.75
+        has_half = 0.25 <= (avg - full_stars) < 0.75
         empty_stars = 5 - full_stars - (1 if has_half else 0)
 
         context['full_stars'] = range(full_stars)
@@ -102,12 +116,12 @@ class PostDetailView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()  
+        self.object = self.get_object()
         post = self.object
 
         if not request.user.is_authenticated:
             messages.error(request, "Debes iniciar sesión para interactuar.")
-            return self.get(request, *args, **kwargs)
+            return self.get(request)
 
         if 'content' in request.POST:
             return self.handle_comment_create(request, post)
@@ -122,7 +136,7 @@ class PostDetailView(DetailView):
 
     def handle_comment_create(self, request, post):
         if not post.allow_comments:
-            messages.error(request, "Los comentarios están desactivados para este post.")
+            messages.error(request, "Los comentarios están desactivados.")
             return self.get(request)
 
         form = CommentForm(request.POST)
@@ -141,13 +155,12 @@ class PostDetailView(DetailView):
         try:
             score = int(score)
             if 1 <= score <= 5:
-                rating, created = Rating.objects.update_or_create(
+                Rating.objects.update_or_create(
                     user=request.user,
                     post=post,
                     defaults={'score': score}
                 )
-                action = "actualizada" if not created else "agregada"
-                messages.success(request, f"⭐ ¡Tu calificación de {score} estrellas ha sido {action}!")
+                messages.success(request, "⭐ Calificación guardada.")
             else:
                 messages.error(request, "La calificación debe ser entre 1 y 5.")
         except (ValueError, TypeError):
@@ -164,39 +177,75 @@ class PostDetailView(DetailView):
         else:
             messages.error(request, "❌ Error al actualizar el comentario.")
         return self.get(request)
-    
+
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'post/post_create.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['images_formset'] = ImageFormSet(self.request.POST, self.request.FILES)
+        else:
+            context['images_formset'] = ImageFormSet()
+        return context
+
     def form_valid(self, form):
+        context = self.get_context_data()
+        images_formset = context['images_formset']
         form.instance.author = self.request.user
-        messages.success(self.request, "El post se creó correctamente.")
-        return super().form_valid(form)
+
+        if images_formset.is_valid():
+            with transaction.atomic():
+                self.object = form.save()
+                images_formset.instance = self.object
+                images_formset.save()
+            messages.success(self.request, "El post se creó correctamente.")
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post/post_update.html'
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
 
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
 
-    def handle_no_permission(self):
-        messages.error(self.request, "No tienes permiso para editar este post.")
-        return super().handle_no_permission()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['images_formset'] = ImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            context['images_formset'] = ImageFormSet(instance=self.object)
+        return context
 
     def form_valid(self, form):
-        messages.success(self.request, "El post se actualizó correctamente.")
-        return super().form_valid(form)
+        context = self.get_context_data()
+        images_formset = context['images_formset']
+        if images_formset.is_valid():
+            with transaction.atomic():
+                form.instance.author = self.request.user
+                self.object = form.save()
+                images_formset.save()
+            messages.success(self.request, "El post se actualizó correctamente.")
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = reverse_lazy('post_list')
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
+    success_url = reverse_lazy('home')
 
     def test_func(self):
         post = self.get_object()
@@ -207,5 +256,62 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().handle_no_permission()
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, "El post se eliminó correctamente.")
+        messages.success(request, "El post se eliminó correctamente.")
         return super().delete(request, *args, **kwargs)
+
+
+class RatePostView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        post = get_object_or_404(Post, slug=slug)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+        try:
+            score = int(request.POST.get('score'))
+            if score < 1 or score > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Puntuación inválida. Debe ser entre 1 y 5.'
+                }, status=400)
+            messages.error(request, "Puntuación inválida.")
+            return redirect(post.get_absolute_url())
+
+        rating, created = Rating.objects.update_or_create(
+            post=post,
+            user=request.user,
+            defaults={'score': score}
+        )
+
+        avg_rating = Rating.objects.filter(post=post).aggregate(avg=Avg('score'), count=Count('id'))
+        average = avg_rating['avg'] or 0
+        count = avg_rating['count']
+
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': 'Tu valoración fue enviada correctamente.',
+                'average_rating': round(average, 1),
+                'ratings_count': count
+            })
+
+        messages.success(request, "Gracias por tu valoración.")
+        return redirect(post.get_absolute_url())
+
+
+class CommentLikeToggleView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        comment = get_object_or_404(Comment, pk=pk)
+        user = request.user
+        liked = user in comment.likes.all()
+
+        if liked:
+            comment.likes.remove(user)
+        else:
+            comment.likes.add(user)
+
+        return JsonResponse({
+            'liked': not liked,
+            'likes_count': comment.likes.count(),
+        })
