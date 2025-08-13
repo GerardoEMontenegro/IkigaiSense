@@ -2,13 +2,13 @@
 
 {% block content %} 
     
-    <h1 class="flex text-3xl text-[#203329] font-libertinus-bold   p-20 justify-center mt-3">{{ object.title }}</h1>
+    <h1 class="flex text-3xl text-[#203329] font-libertinus-bold p-20 justify-center mt-3">{{ object.title }}</h1>
 <div class="flex flex-col gap-14 mx-28 mt-3">
          {% if object.image %}
             <img src="{{ object.image.url }}" alt="{{ object.title }}" class="w-full h-auto object-cover rounded-lg shadow-lg mb-8">
         {% endif %}
         <p class="text-2xl text-[#445e35] font-libertinus-regular">{{ object.content }}</p>
-        <p class="flex font-tangerine text-4xl text-[#203329] justify-end mr-24 mt-0"><strong>{{ object.author }}</strong></p>
+        <p class="flex font-libertinus-bold text-2xl text-[#203329] justify-end mr-24 mt-0"><strong>{{ object.author }}</strong></p>
 </div>
 <form
   method="post" class="shadow-md rounded-lg p-6">
