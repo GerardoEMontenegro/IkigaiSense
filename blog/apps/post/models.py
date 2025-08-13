@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone   
 from django.utils.text import slugify 
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 import uuid    
 import os    
 
@@ -72,6 +73,30 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+    class Meta:
+        ordering = ['-created_at']  # Los comentarios más recientes primero
+        verbose_name = "Comentario"
+        verbose_name_plural = "Comentarios"
+        indexes = [
+            models.Index(fields=['post']),  # Mejora rendimiento en consultas por post
+            models.Index(fields=['author']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        # Muestra un resumen del contenido y el autor
+        short_content = self.content[:50] + "..." if len(self.content) > 50 else self.content
+        return f"{short_content} — {self.author}"
+
+    def save(self, *args, **kwargs):
+        """
+        Opcional: puedes agregar validaciones personalizadas aquí.
+        Por ejemplo, evitar comentarios vacíos o con solo espacios.
+        """
+        if not self.content or not self.content.strip():
+            raise ValidationError("El comentario no puede estar vacío.")
+        super().save(*args, **kwargs)
+
     
 def get_image_path(instance, filename):
     post_id = instance.post.id
@@ -84,11 +109,11 @@ def get_image_path(instance, filename):
     
 class PostImage(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
+    image = models.ImageField(upload_to=get_image_path)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"PostImage {self.id}"
+        return f"Image {self.id} of Post {self.post.id}"
 
 
 class Rating(models.Model):

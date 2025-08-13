@@ -75,14 +75,18 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         post = self.object
 
+        # Comentarios
         context['comments'] = post.comments.order_by('-created_at')
         context['comment_form'] = CommentForm() if post.allow_comments else None
 
+        # Rating del usuario actual
         user = self.request.user
         user_rating = None
         if user.is_authenticated:
             user_rating = post.ratings.filter(user=user).values_list('score', flat=True).first()
-        context['user_rating'] = user_rating or 0  
+        context['user_rating'] = user_rating or 0  # Asegura que no sea None
+
+        # Estadísticas de rating
 
         ratings_stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
         avg = ratings_stats['avg'] or 0
@@ -102,12 +106,14 @@ class PostDetailView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()  
+        self.object = self.get_object()  # Carga el post
+
         post = self.object
 
         if not request.user.is_authenticated:
             messages.error(request, "Debes iniciar sesión para interactuar.")
             return self.get(request, *args, **kwargs)
+
 
         if 'content' in request.POST:
             return self.handle_comment_create(request, post)
@@ -117,6 +123,9 @@ class PostDetailView(DetailView):
 
         elif 'edit_content' in request.POST:
             return self.handle_comment_update(request, post)
+
+
+
 
         return self.get(request, *args, **kwargs)
 
@@ -164,7 +173,7 @@ class PostDetailView(DetailView):
         else:
             messages.error(request, "❌ Error al actualizar el comentario.")
         return self.get(request)
-    
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
