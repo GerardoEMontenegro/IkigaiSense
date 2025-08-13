@@ -15,9 +15,4 @@ urlpatterns = [
     # Categorías
     path('category/list/', views.CategoryListView.as_view(), name='category_list'),
     path('category/create/', views.CategoryCreateView.as_view(), name='category_create'),
-
-    # Comentarios
-    path('posts/<slug:slug>/comments/create/', views.CommentCreateView.as_view(), name='comment_create'),
-    path('comments/<uuid:pk>/update/', views.CommentUpdateView.as_view(), name='comment_update'),
-    path('comments/<uuid:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
 ]

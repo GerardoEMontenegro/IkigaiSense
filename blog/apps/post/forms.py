@@ -2,6 +2,16 @@
 from django import forms
 from apps.post.models import Post, Comment, PostImage, Category
 
+from django import forms
+from apps.post.models import Post, Comment, PostImage, Category
+
+ORDER_CHOICES = [
+    ('-created_at', 'Más recientes'),
+    ('created_at', 'Más antiguos'),
+    ('-amount_comments', 'Más comentados'),
+    ('-average_rating', 'Mejor puntuados'),
+]
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
@@ -29,7 +39,6 @@ class PostForm(forms.ModelForm):
             }),
         }
 
-
 class PostImageForm(forms.ModelForm):
     class Meta:
         model = PostImage  
@@ -48,7 +57,6 @@ class PostImageForm(forms.ModelForm):
                 raise forms.ValidationError("La imagen no puede superar los 5MB.")
             return image
         raise forms.ValidationError("Debes subir una imagen.")
-
 
 ImageFormSet = forms.inlineformset_factory(
     Post,           
@@ -74,12 +82,7 @@ class PostFilterForm(forms.Form):
     order_by = forms.ChoiceField(
         required=False,
         label='Ordenar por',
-        choices=[
-            ('-created_at', 'Más recientes'),
-            ('created_at', 'Más antiguos'),
-            ('-amount_comments', 'Más comentados'),
-            ('-average_rating', 'Mejor puntuados'),
-        ],
+        choices=ORDER_CHOICES,
         widget=forms.Select(attrs={
             'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
         })
@@ -88,7 +91,7 @@ class PostFilterForm(forms.Form):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['title']  # Asegúrate de que 'name' es un campo de tu modelo Category
+        fields = ['title']  # Asegúrate que 'title' existe en tu modelo Category
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',
@@ -96,11 +99,10 @@ class CategoryForm(forms.ModelForm):
             })
         }
 
-            ('-amount_comments', 'Más comentados'),
-            ('-average_rating', 'Mejor puntuados'),
-        ],
+class OrderForm(forms.Form):
+    order_by = forms.ChoiceField(
+        choices=ORDER_CHOICES,
         widget=forms.Select(attrs={
             'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
         })
     )
-
