@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from django.views import View
@@ -237,6 +237,8 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         else:
             return self.form_invalid(form)
 
+def get_success_url(self):
+        return reverse('post:post_detail', kwargs={'slug': self.object.slug})
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post

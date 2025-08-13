@@ -12,12 +12,12 @@
   </form>
 
   {% for post in posts %}
-    <article class="my-8 p-6 bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
+    <article class="my-8 p-6 flex-col bg-white rounded-lg shadow-md shadow-[#F6F2E6] border border-gray-200">
       {% with post.images.first as first_image %}
         {% if first_image %}
           <img src="{{ first_image.image.url }}" 
                alt="Imagen de {{ post.title }}"
-               class="w-full h-48 object-cover mb-4 rounded"/>
+               class="w-48 h-48 object-cover mb-4 rounded"/>
         {% endif %}
       {% endwith %}
 
@@ -38,7 +38,7 @@
         {{ post.content|truncatewords:30 }}
       </p>
 
-      <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] transition-colors"> Leer más →</a>
+      <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] hover:text-lg transition-colors"> Leer más →</a>
     </article>
   {% empty %}
     <p class="font-libertinus-bold text-[#445e35]">No hay posts disponibles.</p>
