@@ -49,21 +49,28 @@
         <a href="{% url 'home' %}" class=" inline-block mt-10 text-green-600 hover:underline text-sm font-medium">
         ← Volver al inicio
         
-          {% if user.is_authenticated and object.author  %}      
-      <div class="justify-end mt-6 flex flex-wrap gap-3">
+            {% if user.is_authenticated and user == object.author %}
+                <div class="justify-end mt-6 flex flex-wrap gap-3">
+                    <!-- Botón Editar -->
+                    <a href="{% url 'post:post_update' slug=object.slug %}"
+                      class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+                        ✏️ Editar
+                    </a>
 
-        </a>
-        <a href="{% url 'post:post_update' object.slug %}"
-           class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
-          ✏️ Editar
-        </a>
-        <a href="{% url 'post:post_delete' object.slug %}"
-           class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
-          Eliminar post
-        </a>
-      </div>
-      </div>
-       {% endif %}
+                    <!-- Botón Eliminar (con confirmación) -->
+                    <button 
+                        type="button"
+                        onclick="confirmDelete()"
+                        class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+                        🗑️ Eliminar post
+                    </button>
+
+                    <!-- Formulario oculto para eliminar (POST seguro con CSRF) -->
+                    <form id="delete-post-form" method="post" action="{% url 'post:post_delete' slug=object.slug %}">
+                        {% csrf_token %}
+                    </form>
+                </div>
+            {% endif %}
        </div>
 
     <!-- PUNTUACIÓN -->
@@ -319,6 +326,12 @@
     return cookieValue;
   }
 });
+    function confirmDelete() {
+        const confirmed = confirm("¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.");
+        if (confirmed) {
+            document.getElementById('delete-post-form').submit();
+        }
+    }
 </script>
 
 {% endblock content %}
