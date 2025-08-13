@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
@@ -9,8 +8,8 @@ from django.http import JsonResponse
 from django.views import View
 from django.db import transaction
 
-from apps.post.forms import PostForm, PostFilterForm
-from apps.post.models import Post, Comment, Rating
+from apps.post.forms import PostForm, PostFilterForm, CategoryForm
+from apps.post.models import Post, Comment, Rating, Category
 from apps.comments.forms import CommentForm
 from .forms import ImageFormSet
 
@@ -18,7 +17,7 @@ from .forms import ImageFormSet
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'post'  
+    context_object_name = 'post'
     paginate_by = 6
 
     def get_queryset(self):
@@ -278,7 +277,7 @@ class RatePostView(LoginRequiredMixin, View):
             messages.error(request, "Puntuación inválida.")
             return redirect(post.get_absolute_url())
 
-        rating, created = Rating.objects.update_or_create(
+        Rating.objects.update_or_create(
             post=post,
             user=request.user,
             defaults={'score': score}
@@ -315,3 +314,16 @@ class CommentLikeToggleView(LoginRequiredMixin, View):
             'liked': not liked,
             'likes_count': comment.likes.count(),
         })
+
+
+class CategoryCreateView(LoginRequiredMixin, CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_create.html'
+    success_url = reverse_lazy('post:category_list')
+
+
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = Category
+    template_name = 'category_list.html'
+    context_object_name = 'categories'

@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from apps.post.models import Post, Comment, PostImage
+from apps.post.models import Post, Comment, PostImage, Category
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -62,7 +62,6 @@ ImageFormSet = forms.inlineformset_factory(
     validate_min=False,
 )
 
-
 class PostFilterForm(forms.Form):
     search_query = forms.CharField(
         required=False,
@@ -85,3 +84,23 @@ class PostFilterForm(forms.Form):
             'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
         })
     )
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['title']  # Asegúrate de que 'name' es un campo de tu modelo Category
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Introduce el nombre de la categoría'
+            })
+        }
+
+            ('-amount_comments', 'Más comentados'),
+            ('-average_rating', 'Mejor puntuados'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
+        })
+    )
+
