@@ -10,24 +10,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title_layout %} IKIGAI - BLOG {% endblock title_layout %}</title>
     <link rel="icon" href="{% static 'assets/Ikigai.png' %}" type="image/x-icon"/>
+    <link rel="icon" href="{% static 'assets/favicon2.png' %}" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
 
     {% block extra_head_layout %} {% endblock extra_head_layout %}
 
     <script type="module" src="{% static 'js/tailwind.js' %}"></script>
     <style type = "text/tailwindcss">
      @theme: {
-      --color-a: '#a3b18a', // Un verde suave para acent 
-      --color-b: '#588157',
-      --color-c: '#f9fbf6',     // Un fondo casi blanco con tinte verde
-      --color-d: '#243a2fff',   // Texto oscuro principal
+      --color-bg: '#F6F2E6', 
+      --color-principal: '#445e35',
+      --color-destaque: '#203329',     
                     }
-    .font-tangerine{font-family:'Tangerine', sans-serif}
-    .font-spectral{font-family:'Spectral', serif; 
-                   font-weight: 400,
-                   font-style: 'normal'}                    
+    .font-tangerine{font-family:'Tangerine', sans-serif;
+                    font-weight: 400;
+                    font-style: 'normal';}
+
+    .font-tangerine-bold{font-family:'Tangerine', sans-serif;
+                         font-weight: 700;
+                         font-style: 'normal';}
+
+    .font-libertinus-regular {font-family: "Libertinus Sans", sans-serif;
+                         font-weight: 400;
+                         font-style: normal;}
+
+    .font-libertinus-bold {font-family: "Libertinus Sans", sans-serif;
+                      font-weight: 700;
+                      font-style: normal;}
+
+    .font-libertinus-italic {font-family: "Libertinus Sans", sans-serif;
+                                font-weight: 400;
+                                font-style: italic;}
+
     </style>
 
 </head>
