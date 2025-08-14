@@ -16,7 +16,7 @@ User = get_user_model()
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=50)
 
 
     def __str__(self):

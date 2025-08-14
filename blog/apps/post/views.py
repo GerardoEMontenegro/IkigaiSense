@@ -332,11 +332,12 @@ class CategoryCreateView(View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        name = request.POST.get('title')
+        name = request.POST.get('title')  
         if name:
-            Category.objects.create(name=name)
+          
+            Category.objects.create(title=name)
             messages.success(request, "Categoría creada correctamente.")
-            return redirect('category:category_create')  
+            return redirect('post:category_create')
         else:
             messages.error(request, "El nombre de la categoría no puede estar vacío.")
             return render(request, self.template_name)
