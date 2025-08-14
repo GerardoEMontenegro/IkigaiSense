@@ -78,9 +78,9 @@ class PostFilterForm(forms.Form):
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         required=False,
-        empty_label='Todas las categorías',
+        empty_label='Todas las categorías',  
         widget=forms.Select(attrs={
-            'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
+            'class': 'form-control'
         })
     )
     order_by = forms.ChoiceField(
