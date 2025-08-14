@@ -18,6 +18,7 @@ User = get_user_model()
 class Category(models.Model):
     title = models.CharField(max_length=50, unique=True)
 
+
     def __str__(self):
         return self.title
 
@@ -180,6 +181,7 @@ class Rating(models.Model):
     score = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('post', 'user')
