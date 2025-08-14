@@ -12,14 +12,25 @@ from .forms import CustomUserCreationForm, AvatarUpdateForm
 from .models import User
 
 
-class UserProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'user/user_profile.html'
+class UserProfileView(TemplateView):
+    template_name = "user/user_profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['user'] = user
-        context['posts'] = user.posts.all().order_by('-created_at')
+        
+        if user.is_superuser:
+            role = "Superusuario"
+        elif user.groups.filter(name="Admins").exists():
+            role = "Administrador"
+        elif user.groups.filter(name="Collaborators").exists():
+            role = "Colaborador"
+        elif user.groups.filter(name="Registered").exists():
+            role = "Registrado"
+        else:
+            role = "Sin rol"
+
+        context["role"] = role
         return context
 
 
