@@ -4,7 +4,6 @@
 
 {% block title_layout %}
 Inicio
-Inicio
 {% endblock %}
 
 {% block content %}
@@ -16,17 +15,10 @@ Inicio
         <div class="absolute inset-0 bg-black opacity-40"></div>
         <div class="relative z-10 h-full flex flex-col justify-start items-center pt-9 px-4 text-center">
             <h1 class="text-4xl md:text-6xl font-tangerine text-white mt-10 max-w-5xl leading-tight">
-    {% static 'assets/images/portada1.webp' as background_image %}
-
-    <section class="relative h-[70vh] bg-cover bg-center text-white" 
-             style="background-image: url('{{ background_image }}');">
-        <div class="absolute inset-0 bg-black opacity-40"></div>
-        <div class="relative z-10 h-full flex flex-col justify-start items-center pt-9 px-4 text-center">
-            <h1 class="text-4xl md:text-6xl font-tangerine text-white mt-10 max-w-5xl leading-tight">
                 Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.
             </h1>
             <div class="flex flex-wrap justify-center mt-8 gap-5">
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-50">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <form method="get" class="flex flex-col sm:flex-row gap-4 mb-8">
             <div class="flex-1">
                 <input type="text" name="search_query" value="{{ request.GET.search_query }}"
@@ -70,14 +62,9 @@ Inicio
     </section>
 
 
-
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="m-8 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {% for post in posts %}
-            <div class="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 bg-white">
-
-                <div class="flex-shrink-0 h-48 bg-[#203329] flex items-center justify-center">
-                    {% with post.images.all|first as post_image %}
             <div class="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 bg-white">
 
                 <div class="flex-shrink-0 h-48 bg-[#203329] flex items-center justify-center">
@@ -86,13 +73,7 @@ Inicio
                             <img class="h-full w-full object-cover" 
                                  src="{{ post_image.image.url }}" 
                                  alt="{{ post.title }}">
-                            <img class="h-full w-full object-cover" 
-                                 src="{{ post_image.image.url }}" 
-                                 alt="{{ post.title }}">
                         {% else %}
-                            <span class="text-white text-xl font-libertinus-bold text-center px-4">
-                                {{ post.title|truncatechars:40 }}
-                            </span>
                             <span class="text-white text-xl font-libertinus-bold text-center px-4">
                                 {{ post.title|truncatechars:40 }}
                             </span>
@@ -124,33 +105,8 @@ Inicio
                         {{ post.content|truncatewords:25|linebreaksbr }}
                     </p>
 
-                <div class="flex-1 p-6 flex flex-col">
-
-                    {% if post.average_rating %}
-                    <div class="flex items-center mb-2">
-                        <div class="flex">
-                            {% for i in '12345'|make_list %}
-                                {% if i|add:'0'|floatformat:'0' <= post.average_rating|floatformat:'0' %}
-                                    <span class="text-amber-500 text-sm">★</span>
-                                {% else %}
-                                    <span class="text-gray-300 text-sm">★</span>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <span class="ml-1 text-xs text-gray-500">({{ post.ratings_count }})</span>
-                    </div>
-                    {% endif %}
-
-                    <h3 class="text-xl font-libertinus-italic text-[#203329] line-clamp-2">
-                        {{ post.title }}
-                    </h3>
-                    <p class="mt-3 text-base font-libertinus-regular text-gray-600 line-clamp-3">
-                        {{ post.content|truncatewords:25|linebreaksbr }}
-                    </p>
-
                     <div class="mt-6">
                         <a href="{% url 'post:post_detail' post.slug %}" 
-                           class="text-lg font-libertinus-bold text-[#445e35] hover:text-[#203329] transition duration-300">
                            class="text-lg font-libertinus-bold text-[#445e35] hover:text-[#203329] transition duration-300">
                            Leer más &rarr;
                         </a>
@@ -159,42 +115,10 @@ Inicio
             </div>
             {% empty %}
             <p class="col-span-full text-center text-gray-500 text-lg py-10">
-            <p class="col-span-full text-center text-gray-500 text-lg py-10">
                 No hay publicaciones disponibles.
             </p>
             {% endfor %}
         </div>
-
-        {% if page_obj.has_other_pages %}
-        <div class="flex justify-center mt-12">
-            <nav class="flex gap-2">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" 
-                       class="px-4 py-2 bg-[#445e35] text-white rounded hover:bg-[#203329] transition">
-                        Anterior
-                    </a>
-                {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <span class="px-4 py-2 bg-[#203329] text-white font-bold rounded">{{ num }}</span>
-                    {% else %}
-                        <a href="?page={{ num }}" 
-                           class="px-4 py-2 bg-white border border-[#203329] text-[#203329] hover:bg-[#F6F2E6] rounded transition">
-                            {{ num }}
-                        </a>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" 
-                       class="px-4 py-2 bg-[#445e35] text-white rounded hover:bg-[#203329] transition">
-                        Siguiente
-                    </a>
-                {% endif %}
-            </nav>
-        </div>
-        {% endif %}
 
         {% if page_obj.has_other_pages %}
         <div class="flex justify-center mt-12">
