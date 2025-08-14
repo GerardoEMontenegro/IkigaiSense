@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from django.views import View
@@ -237,6 +237,8 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         else:
             return self.form_invalid(form)
 
+def get_success_url(self):
+        return reverse('post:post_detail', kwargs={'slug': self.object.slug})
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -317,11 +319,16 @@ class CommentLikeToggleView(LoginRequiredMixin, View):
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForm
-    template_name = 'category_create.html'
+    template_name = 'category/category_create.html'
     success_url = reverse_lazy('post:category_list')
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
-    template_name = 'category_list.html'
+    template_name = 'category/category_list.html'
     context_object_name = 'categories'
+
+class CategoryDeleteView(DeleteView):
+    model = Category
+    template_name = 'category/category_delete.html'
+    success_url = reverse_lazy('category_list.html')

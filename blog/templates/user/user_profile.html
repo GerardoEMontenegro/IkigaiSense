@@ -1,8 +1,7 @@
 {% extends 'layouts/general_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
-{% load django_browser_reload %}
-{% django_browser_reload_script %}
+
 
 
 
@@ -76,6 +75,7 @@ Perfil de {{ user.username }}
          <p>No has creado ningún post aún.</p>
     {% endif %}
 </div>
+
 {% endblock content %}
 
 

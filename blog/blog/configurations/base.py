@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'apps.categorias',
     'apps.comments',
     'widget_tweaks',
-    "django_browser_reload",
     
 ]
 
