@@ -1,5 +1,6 @@
 {% load static %}
 {% load widget_tweaks %}
+{% load user_groups %}
 
 <nav class="flex justify-between items-center p-4 bg-[#F6F2E6] ">
  
@@ -42,13 +43,13 @@
                   Mi Perfil
               </a>
             </li>
-            {% if user.is_staff %}
-              <li>
+             {% if user|has_group:"Collaborators" or user|has_group:"Admins" %}
+                <li>
                 <a href="{% url 'post:post_create' %}" 
-                   class="block px-4 py-2 hover:bg-gray-100">
+                  class="block px-4 py-2 hover:bg-gray-100">
                     Publicar
                 </a>
-              </li>
+                </li>
             {% endif %}
             <li>
               <a href="{% url 'user:auth_logout' %}" 

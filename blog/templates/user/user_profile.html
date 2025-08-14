@@ -24,7 +24,7 @@ Perfil de {{ user.username }}
       {% if user.avatar %}
         <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="rounded-full w-24 h-24 object-cover" />
       {% else %}
-        <img src="{% static 'user/default/default-avatar-2.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
+        <img src="{% static 'user/default/default-avatar.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
       {% endif %}
 
       <div>

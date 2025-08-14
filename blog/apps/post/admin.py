@@ -57,6 +57,26 @@ class PostAdmin(admin.ModelAdmin):
     def disapprove_posts(self, request, queryset):
         updated = queryset.update(approved_post=False)
         self.message_user(request, f'{updated} posts han sido desaprobados.')
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return qs
+        return qs.filter(author=request.user)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return True
+        if obj is not None and obj.author != request.user:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return True
+        if obj is not None and obj.author != request.user:
+            return False
+        return super().has_delete_permission(request, obj)
 
 
 
