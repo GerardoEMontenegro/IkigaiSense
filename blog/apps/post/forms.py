@@ -1,15 +1,11 @@
-# forms.py
-from django import forms
-from apps.post.models import Post, Comment, PostImage, Category
-
 from django import forms
 from apps.post.models import Post, Comment, PostImage, Category
 
 ORDER_CHOICES = [
     ('-created_at', 'Más recientes'),
     ('created_at', 'Más antiguos'),
-    ('-amount_comments', 'Más comentados'),
-    ('-average_rating', 'Mejor puntuados'),
+    ('-comments_count', 'Más comentados'),
+    ('-avg_rating', 'Mejor puntuados'),  # ← Usa el alias anotado
 ]
 
 class PostForm(forms.ModelForm):
@@ -41,12 +37,12 @@ class PostForm(forms.ModelForm):
 
 class PostImageForm(forms.ModelForm):
     class Meta:
-        model = PostImage  
-        fields = ['image']  
+        model = PostImage
+        fields = ['image']
         widgets = {
             'image': forms.FileInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
-                'accept': 'image/*'  
+                'accept': 'image/*'
             })
         }
 
@@ -59,10 +55,10 @@ class PostImageForm(forms.ModelForm):
         raise forms.ValidationError("Debes subir una imagen.")
 
 ImageFormSet = forms.inlineformset_factory(
-    Post,           
-    PostImage,      
-    form=PostImageForm,  
-    extra=3,        
+    Post,
+    PostImage,
+    form=PostImageForm,
+    extra=3,
     can_delete=True,
     max_num=5,
     validate_max=True,
