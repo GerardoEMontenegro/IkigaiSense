@@ -2,7 +2,6 @@
 {% load widget_tweaks %}
 {% load static %}
 
-
 {% block content %}
 <main class="max-w-3xl mx-auto px-4 py-8">
   <h1 class="text-2xl font-libertinus-bold mb-6">Editar artículo</h1>
@@ -10,6 +9,7 @@
   <form method="post" enctype="multipart/form-data" class="space-y-6 bg-white p-6 rounded-lg shadow">
     {% csrf_token %}
 
+    <!-- Campos del PostForm -->
     {% for field in form %}
       <div>
         <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
@@ -27,12 +27,12 @@
       </div>
     {% endfor %}
 
-    <!-- Mostrar imágenes actuales y opción para eliminarlas -->
-    {% if post.images.all %}
+    <!-- Imágenes actuales con opción de eliminar -->
+    {% if object.images.all %}
       <div>
         <h2 class="text-lg font-medium text-gray-800 mb-4">Imágenes actuales</h2>
         <div class="grid grid-cols-3 gap-4">
-          {% for image in post.images.all %}
+          {% for image in object.images.all %}
             <div class="relative">
               <img src="{{ image.url }}" alt="Imagen actual" class="w-full h-32 object-cover rounded">
               <label class="block text-sm mt-2">
@@ -45,17 +45,24 @@
       </div>
     {% endif %}
 
-    <!-- Subir imágenes nuevas -->
+    <!-- Formset para subir nuevas imágenes -->
     <div>
-      <label class="block text-sm font-medium text-gray-700">
-        Subir nuevas imágenes
-      </label>
-      <input type="file" name="new_images" multiple
-             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#F6F2E6] focus:border-[#F6F2E6]">
+      <h2 class="text-lg font-medium text-gray-800 mb-2">Subir nuevas imágenes</h2>
+      {{ images_formset.management_form }}
+      {% for img_form in images_formset %}
+        <div class="mb-4">
+          {% for field in img_form %}
+            {{ field|add_class:"block w-full border border-gray-300 rounded-md p-2" }}
+            {% for error in field.errors %}
+              <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      {% endfor %}
     </div>
 
     <div class="flex items-center font-libertinus-bold justify-end space-x-4 pt-4 border-t">
-      <a href="{% url 'post:post_detail' post.slug %}" 
+      <a href="{% url 'post:post_detail' object.slug %}" 
          class="text-[#445e35] hover:text-[#203329] hover:text-xl">
         Cancelar
       </a>

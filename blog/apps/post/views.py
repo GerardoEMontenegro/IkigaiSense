@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.db import transaction
 from apps.post.forms import PostForm, PostFilterForm, CategoryForm
-from apps.post.models import Post, Comment, Rating, Category
+from apps.post.models import Post, Comment, Rating, Category, PostImage
 from apps.comments.forms import CommentForm
 from .forms import ImageFormSet
 
@@ -16,8 +16,7 @@ from .forms import ImageFormSet
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'posts'  # ← Aquí estaba el error
-    paginate_by = 6
+    context_object_name = 'posts'  
 
     def get_queryset(self):
         queryset = Post.objects.filter(approved_post=True).select_related('author', 'category').annotate(
@@ -227,18 +226,28 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         images_formset = context['images_formset']
+
+        delete_images_ids = self.request.POST.getlist('delete_images')
+
         if images_formset.is_valid():
             with transaction.atomic():
                 form.instance.author = self.request.user
                 self.object = form.save()
+
+                images_formset.instance = self.object
                 images_formset.save()
+
+                if delete_images_ids:
+                    PostImage.objects.filter(id__in=delete_images_ids, post=self.object).delete()
+
             messages.success(self.request, "El post se actualizó correctamente.")
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
 
-def get_success_url(self):
+    def get_success_url(self):
         return reverse('post:post_detail', kwargs={'slug': self.object.slug})
+    
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -316,19 +325,29 @@ class CommentLikeToggleView(LoginRequiredMixin, View):
         })
 
 
-class CategoryCreateView(LoginRequiredMixin, CreateView):
-    model = Category
-    form_class = CategoryForm
+class CategoryCreateView(View):
     template_name = 'category/category_create.html'
-    success_url = reverse_lazy('post:category_list')
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('title')
+        if name:
+            Category.objects.create(name=name)
+            messages.success(request, "Categoría creada correctamente.")
+            return redirect('category:category_create')  
+        else:
+            messages.error(request, "El nombre de la categoría no puede estar vacío.")
+            return render(request, self.template_name)
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
-    template_name = 'category/category_list.html'
+    template_name = 'post/category_list.html'
     context_object_name = 'categories'
 
 class CategoryDeleteView(DeleteView):
     model = Category
-    template_name = 'category/category_delete.html'
+    template_name = 'post/category_delete.html'
     success_url = reverse_lazy('category_list.html')
