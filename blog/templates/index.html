@@ -17,44 +17,43 @@ Inicio
             <h1 class="text-4xl md:text-6xl font-tangerine text-white mt-10 max-w-5xl leading-tight">
                 Si no has encontrado tu Ikigai, su búsqueda ya constituye un propósito en sí mismo.
             </h1>
-            <div class="flex flex-wrap justify-center mt-8 gap-5">
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-50">
-        <form method="get" class="flex flex-col sm:flex-row gap-4 mb-8">
-            <div class="flex-1">
-                <input type="text" name="search_query" value="{{ request.GET.search_query }}"
-                       placeholder="Buscar posts..." 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]">
-            </div>
-            <div class="flex-1">
-                    <select name="category" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]">
-                        <option value="">Todas las categorías</option>
-                        {% for cat in form.category.queryset %}
-                            <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == request.GET.category %}selected{% endif %}>
-                                {{ cat.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-            </div>
-            <div class="flex-1">
-                <select name="order_by" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]">
-                    <option value="">Ordenar por</option>
-                    <option value="-created_at" {% if request.GET.order_by == '-created_at' %}selected{% endif %}>Más recientes</option>
-                    <option value="created_at" {% if request.GET.order_by == 'created_at' %}selected{% endif %}>Más antiguos</option>
-                    <option value="-average_rating" {% if request.GET.order_by == '-average_rating' %}selected{% endif %}>Mejor valorados</option>
-                    <option value="title" {% if request.GET.order_by == 'title' %}selected{% endif %}>Título A-Z</option>
-                </select>
-            </div>
-            <button type="submit" class="bg-[#445e35] text-white px-6 py-3 rounded-lg hover:bg-[#203329] transition">
-                Filtrar
-            </button>
-            {% if user.is_staff %}
-                    <a href="{% url 'post:category_create' %}" 
-                       type="submit" class="bg-[#445e35] text-white px-6 py-3 rounded-lg hover:bg-[#203329] transition">
-                       Crear categoría
-                    </a>
-                {% endif %}
-        </form>
-    </section>
+            <div class="flex flex-wrap justify-center mt-50 gap-5">
+                <section class="max-w-7xl mx-auto px-4 sm:px-6 text-black text-shadow-lg lg:px-8 mt-12">
+                <form method="get" class="flex flex-col sm:flex-row gap-4 mb-8">
+                    <div class="flex-1 bg-[#F6F2E6] bg-opacity-25 rounded-lg">
+                        <input type="text" name="search_query" value="{{ request.GET.search_query }}"
+                            placeholder="Buscar posts..." 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]">
+                    </div>
+
+                    <div class="flex-1 bg-[#F6F2E6] bg-opacity-25 rounded-lg">
+                         {{ form.category|add_class:"w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]" }}
+                    </div>
+
+
+
+                    <div class="flex-1 bg-[#F6F2E6] bg-opacity-25 rounded-lg">
+                        <select name="order_by" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#445e35]">
+                            <option value="">Ordenar por</option>
+                            <option value="-created_at" {% if request.GET.order_by == '-created_at' %}selected{% endif %}>Más recientes</option>
+                            <option value="created_at" {% if request.GET.order_by == 'created_at' %}selected{% endif %}>Más antiguos</option>
+                            <option value="-average_rating" {% if request.GET.order_by == '-average_rating' %}selected{% endif %}>Mejor valorados</option>
+                            <option value="title" {% if request.GET.order_by == 'title' %}selected{% endif %}>Título A-Z</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="bg-[#445e35] text-white px-6 py-3 rounded-lg hover:bg-[#203329] transition text-center">
+                        Filtrar
+                    </button>
+
+                    {% if user.is_staff %}
+                        <a href="{% url 'post:category_create' %}" 
+                        class="bg-[#445e35] text-white px-6 py-3 rounded-lg hover:bg-[#203329] transition text-center">
+                        Crear categoría
+                        </a>
+                    {% endif %}
+                </form>
+            </section>
     
     
             </div>
