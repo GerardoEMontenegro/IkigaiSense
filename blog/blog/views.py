@@ -53,3 +53,8 @@ class IndexView(TemplateView):
         context['page_obj'] = page_obj
 
         return context
+      
+     
+class AboutUsView(TemplateView):
+    template_name='about_us.html'
+
