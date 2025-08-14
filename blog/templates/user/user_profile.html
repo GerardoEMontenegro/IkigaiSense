@@ -1,20 +1,15 @@
 {% extends 'layouts/general_layout.html' %}
 {% load static %}
-{% load widget_tweaks %}
-
-
 
 
 {% block title %}
 Perfil de {{ user.username }}
 {% endblock title %}
 
-
 {% block content %}
+<div class="min-h-screen bg-[#F6F2E6] text-[#3F4F36] flex justify-center items-start py-12 px-4">
 
-<div class="min-h-screen bg-[#F6F2E6] text-[#3F4F36] flex justify-center items-start gap-10 py-12 px-12">
-
-  <div class="bg-white rounded-lg shadow-md w-1/3 p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow-md max-w-lg w-full p-6 space-y-6">
 
     <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">
       Perfil de Usuario
@@ -24,7 +19,7 @@ Perfil de {{ user.username }}
       {% if user.avatar %}
         <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="rounded-full w-24 h-24 object-cover" />
       {% else %}
-        <img src="{% static 'user/default/default-avatar.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
+        <img src="{% static 'user/default/default-avatar-2.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
       {% endif %}
 
       <div>
@@ -38,22 +33,22 @@ Perfil de {{ user.username }}
       </div>
     </div>
 
-        <div class="space-y-2">
-          <p><strong>Email:</strong> {{ user.email }}</p>
-          <p><strong>Rol:</strong> {{ role }}</p>
-        </div>
-      <a href="{% url 'user:auth_logout' %}" class="inline-block bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
-        Cerrar sesión
-      </a>
+    <div class="space-y-2">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Rol:</strong> {% if user.is_staff %}Staff{% else %}Usuario{% endif %}</p>
     </div>
-</div>
 
-<div class="bg-white rounded-lg shadow-md w-2/3 p-6 space-y-6">
-      
- <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
+    <div>
+    <a href="{% url 'user:auth_logout' %}" class="inline-block bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+      Cerrar sesión
+    </a>
+    </div>
 
-    {% if posts %}
-        <ul class="list-disc list-inside space-y-8 max-h-60 overflow-y-auto">
+    <div class="mt-8">
+      <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
+
+      {% if posts %}
+        <ul class="list-disc list-inside space-y-2 max-h-60 overflow-y-auto">
           {% for post in posts %}
             <li>
               <a href="{% url 'post:post_detail' post.slug %}" class="text-[#3F4F36] hover:underline">
@@ -61,20 +56,14 @@ Perfil de {{ user.username }}
               </a>
               <span class="text-sm text-gray-500">- {{ post.created_at|date:"d M Y" }}</span>
             </li>
-        </ul>
-        <div>
-         <p class="text-[#445e35] mb-4 line-clamp-3"> {{ post.content|truncatewords:30 }}</p>
-        </div>
-         <a href="{% url 'post:post_detail' post.slug %}" class="hover:text-[#203329] transition-colors"> Leer más →</a>
           {% endfor %}
-    {% else %}
-         <p>No has creado ningún post aún.</p>
-    {% endif %}
+        </ul>
+      {% else %}
+        <p>No has creado ningún post aún.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
 </div>
-
 {% endblock content %}
-
-
-    
-
-   
