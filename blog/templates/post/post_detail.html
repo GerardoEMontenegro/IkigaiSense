@@ -141,7 +141,7 @@
             <form method="post" class="shadow-md rounded-lg p-6 mt-8">
                 {% csrf_token %}
                 <h3 class="text-lg font-spectral font-semibold">Deja tu comentario:</h3>
-                <textarea name="content" rows="3" placeholder="Escribe aquí tu comentario..." class="w-full border text-3xl text-slate-800 font-tangerine border-gray-300 rounded-md my-3 p-3 focus:outline-none focus:ring-2 focus:ring-[#2a4236] transition">{{ comment_form.content.value|default:'' }}</textarea>
+                <textarea name="content" rows="3" placeholder="Escribe aquí tu comentario..." class="w-full border text-3xl text-slate-800 font-libertinus-regular border-gray-300 rounded-md my-3 p-3 focus:outline-none focus:ring-2 focus:ring-[#2a4236] transition">{{ comment_form.content.value|default:'' }}</textarea>
                 {% if comment_form.content.errors %}
                     <p class="text-sm text-red-600 mt-1">{{ comment_form.content.errors.0 }}</p>
                 {% endif %}
