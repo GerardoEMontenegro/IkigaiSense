@@ -49,7 +49,7 @@ class PostImageForm(forms.ModelForm):
     def clean_image(self):
         image = self.cleaned_data.get('image')
         if image:
-            if image.size > 5 * 1024 * 1024:  # 5MB
+            if image.size > 5 * 1024 * 1024:  
                 raise forms.ValidationError("La imagen no puede superar los 5MB.")
             return image
         raise forms.ValidationError("Debes subir una imagen.")
@@ -71,7 +71,15 @@ class PostFilterForm(forms.Form):
         required=False,
         label='Buscar',
         widget=forms.TextInput(attrs={
-            'placeholder': 'Buscar por título, contenido o autor...',
+            'placeholder': 'Buscar por título o contenido...',
+            'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
+        })
+    )
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        empty_label='Todas las categorías',
+        widget=forms.Select(attrs={
             'class': 'w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D9773]'
         })
     )
@@ -84,10 +92,17 @@ class PostFilterForm(forms.Form):
         })
     )
 
+    def clean_order_by(self):
+        order_by = self.cleaned_data.get('order_by')
+        valid_fields = ['-created_at', 'created_at', '-amount_comments', '-average_rating']
+        if order_by and order_by not in valid_fields:
+            return '-created_at'
+        return order_by
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['title']
+        fields = ['title']  
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',

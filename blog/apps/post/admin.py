@@ -2,17 +2,10 @@ from django.contrib import admin
 from apps.post.models import Post, Category, Comment, PostImage, Rating
 
 
-# ---------------------------
-# Admin para Category
-# ---------------------------
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title',)
     search_fields = ('title',)
 
-
-# ---------------------------
-# Admin para Post
-# ---------------------------
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = (
@@ -25,16 +18,16 @@ class PostAdmin(admin.ModelAdmin):
         'updated_at',
         'allow_comments'
     )
-    list_editable = ('approved_post',)  # Editable directamente desde la lista
+    list_editable = ('approved_post',) 
     search_fields = ('title', 'content', 'author__username')
     list_filter = (
-        'approved_post',      # Filtro por estado de aprobación
+        'approved_post',      
         'category',
         'author',
         'created_at',
         'allow_comments'
     )
-    prepopulated_fields = {'slug': ('title',)}  # Genera slug automáticamente
+    prepopulated_fields = {'slug': ('title',)}  
     readonly_fields = ('created_at', 'updated_at')
     ordering = ('-created_at',)
 
@@ -66,9 +59,7 @@ class PostAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} posts han sido desaprobados.')
 
 
-# ---------------------------
-# Admin para Comment
-# ---------------------------
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'post', 'author', 'created_at', 'approved')
@@ -92,9 +83,7 @@ class CommentAdmin(admin.ModelAdmin):
     )
 
 
-# ---------------------------
-# Admin para PostImage
-# ---------------------------
+
 @admin.register(PostImage)
 class PostImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'post', 'image', 'created_at')
@@ -104,9 +93,7 @@ class PostImageAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-# ---------------------------
-# Admin para Rating
-# ---------------------------
+
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
     list_display = ('id', 'post', 'user', 'score', 'created_at')
@@ -126,7 +113,4 @@ class RatingAdmin(admin.ModelAdmin):
     )
 
 
-# ---------------------------
-# Registro de Category (sin @admin.register para evitar duplicados)
-# ---------------------------
 admin.site.register(Category, CategoryAdmin)

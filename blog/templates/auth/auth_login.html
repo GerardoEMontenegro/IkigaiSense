@@ -13,18 +13,17 @@
 
 <div class="flex h-screen">
 
-  <!-- Imagen ocupa 2/3 -->
   <div class="w-2/3 hidden md:flex items-center justify-center">
     <img src="{% static 'assets/login-side-image.jpeg' %}" alt="bienestar" class="w-full h-full object-cover" />
   </div>
 
-  <!-- Formulario ocupa 1/3 -->
   <div class="w-full md:w-1/3 flex items-center justify-center bg-[#F6F2E6] px-6 py-12">
 
     <div class="w-full max-w-sm space-y-6">
-
       <div class="text-center">
-        <img src="{% static 'assets/logo2.png' %}" alt="logo" class="w-36 h-auto mx-auto mb-4">
+        <a href="{% url 'home' %}" class="inline-block">
+            <img src="{% static 'assets/logo2.png' %}" alt="logo" class="w-36 h-auto mx-auto mb-4">
+        </a>
         <h2 class="text-xl font-bold tracking-tight text-[#3F4F36]">INICIAR SESIÓN</h2>
       </div>
 

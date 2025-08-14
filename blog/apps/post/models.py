@@ -47,7 +47,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     allow_comments = models.BooleanField(default=True)
-    approved_post = models.BooleanField(default=False)  # Aprobación del post
+    approved_post = models.BooleanField(default=False)  
     image = models.ImageField(upload_to='posts/images/', blank=True, null=True)
 
     def get_absolute_url(self):
@@ -55,15 +55,6 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
-
-    @property
-    def amount_comments(self):
-        return self.comments.filter(approved=True).count()  # Si tienes moderación
-
-    @property
-    def average_rating(self):
-        result = self.ratings.aggregate(avg=Avg('score'))['avg']
-        return round(result, 1) if result else 0
 
     @property
     def ratings_count(self):
@@ -112,7 +103,7 @@ class Comment(models.Model):
         related_name='comments'
     )
     likes = models.ManyToManyField(User, related_name='liked_comments', blank=True)
-    approved = models.BooleanField(default=False)  # Opcional: moderación
+    approved = models.BooleanField(default=False)  
 
     def clean(self):
         if not self.content or not self.content.strip():
@@ -169,15 +160,8 @@ class PostImage(models.Model):
 
 
 class Rating(models.Model):
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.CASCADE,
-        related_name='ratings'
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='ratings', db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     score = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
@@ -187,6 +171,6 @@ class Rating(models.Model):
         unique_together = ('post', 'user')
         verbose_name = "Puntuación"
         verbose_name_plural = "Puntuaciones"
-
-    def __str__(self):
-        return f'{self.user.username} - {self.post.title} - {self.score}'
+        indexes = [
+            models.Index(fields=['post', 'score']),  
+        ]
