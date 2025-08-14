@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from blog.views import IndexView
+from blog.views import IndexView, AboutUsView
 #from registro import views
 
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('', include('apps.user.urls', namespace='user')),
     path('', include('apps.post.urls', namespace='post')),
     path('', include('apps.comments.urls', namespace='comments')),
+    path('about/', AboutUsView.as_view(), name='about_us'),
 
 ]
 

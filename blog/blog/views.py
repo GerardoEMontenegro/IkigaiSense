@@ -8,3 +8,5 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs) # Obtiene el contexto de la plantilla
         context['posts'] = Post.objects.all().order_by('-created_at')[:5] # Obtiene los últimos 5 posts
         return context  # Retorna el contexto actualizado
+class AboutUsView(TemplateView):
+    template_name='about_us.html'
