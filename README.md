@@ -1,49 +1,84 @@
-# URL DESPLEGADA
-[miblog.pythonanywhere.com](https://ikigaicenter.pythonanywhere.com/)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/GerardoEMontenegro/IkigaiSense/blob/main/blog/static/assets/logo2.png" alt="Ikigai Center Logo" width="150"/>
+</p>
 
-## Descripción
+<h1 align="center">🌿 Ikigai Center</h1>
+<p align="center">
+  Plataforma de blog enfocada en <strong>salud, bienestar y crecimiento personal</strong>, desarrollada en <strong>Django</strong> con un diseño moderno y minimalista.
+</p>
 
-IkigaiSense es una plataforma desarrollada con Python y Django que permite la gestión de publicaciones, comentarios y usuarios, orientada a la comunidad interesada en el desarrollo personal y profesional, en el ambito deportivo.
-
----
-
-## Características
-
-- Registro y autenticación de usuarios (colaboradores y administradores)
-- Creación, edición y eliminación de publicaciones
-- Sistema de comentarios en los posts
-- Gestión de categorías
-- Recuperación de contraseña
-- Panel de administración personalizado
-- Carga de imágenes para posts y perfiles de usuario
+<p align="center">
+  <a href="https://ikigaicenter.pythonanywhere.com/">🔗 Visitar el proyecto</a> | 
+  <a href="#🚀-características">✨ Características</a> | 
+  <a href="#🛠️-tecnologías-utilizadas">🛠️ Tecnologías</a> | 
+  <a href="#📂-estructura-del-proyecto">📂 Estructura</a>
+</p>
 
 ---
 
-# Integrantes
+## 🚀 Características
 
-- Cintia
-- German
-- Gerardo
+- 📚 Publicación y gestión de artículos por categorías  
+- 🖼️ Imágenes destacadas y galería para cada post  
+- 💬 Sistema de comentarios y reacciones con emojis  
+- 🔒 Registro e inicio de sesión con email o redes sociales  
+- 🌐 Diseño responsive y multilenguaje  
+- ⭐ Favoritos y lista de lectura pendiente  
 
-# USUARIOS DE PRUEBA
+---
 
-COLABORADOR  
-email: CintiRomi  
-contraseña: facil123
+## 🛠️ Tecnologías utilizadas
 
-COLABORADOR  
-Usuario: gd_25  
-contraseña: German.25
+<p align="center">
+  <img src="https://img.shields.io/badge/Django-5.0-green" alt="Django">
+  <img src="https://img.shields.io/badge/Python-3.11-blue" alt="Python">
+  <img src="https://img.shields.io/badge/TailwindCSS-3.5-teal" alt="TailwindCSS">
+  <img src="https://img.shields.io/badge/Alpine.js-3.12-purple" alt="Alpine.js">
+</p>
 
-ADMIN  
-Usuario: gerardo1  
-contraseña: casa.2020
+- **Backend:** Django 5, Python 3  
+- **Frontend:** HTML5, TailwindCSS, Alpine.js  
+- **Base de datos:** SQLite (desarrollo) / PostgreSQL (producción)  
+- **Autenticación:** Django Allauth  
+- **Otros:** Pillow, Crispy Forms, Widget Tweaks  
 
-## DEJAMOS 10 Post de prueba
+---
 
-# Proyecto creado con Python y Django
+## 👥 Integrantes
 
-# Estructura del proyecto (incluyendo archivos principales de entorno, apps y templates):
+- Cintia Romina Bertoncini  
+- German Edgardo Delfino  
+- Gerardo Emanuel Montenegro  
+
+---
+
+## 🔑 Usuarios de prueba
+
+**COLABORADOR**  
+- Email: `CintiRomi`  
+- Contraseña: `facil123`  
+
+**COLABORADOR**  
+- Usuario: `gd_25`  
+- Contraseña: `German.25`  
+
+**ADMIN**  
+- Usuario: `gerardo1`  
+- Contraseña: `casa.2020`  
+
+> 💡 Se han cargado **10 posts de prueba**.
+
+---
+
+## 🖼️ Captura de pantalla
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/usuario/ikigai-center/main/static/assets/screenshot_home.png" alt="Ikigai Center Home" width="700"/>
+</p>
+
+---
+
+## 📂 Estructura del proyecto
 
 ```
 IkigaiSense/
