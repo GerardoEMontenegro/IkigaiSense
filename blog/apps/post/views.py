@@ -221,7 +221,12 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         post = self.get_object()
-        return self.request.user == post.author
+        return (
+            self.request.user.is_superuser or
+            self.request.user.is_admin or
+            self.request.user.is_collaborator or
+            self.get_object().author == self.request.user
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -239,7 +244,6 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
         if images_formset.is_valid():
             with transaction.atomic():
-                form.instance.author = self.request.user
                 self.object = form.save()
 
                 images_formset.instance = self.object
@@ -261,7 +265,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-    template_name = 'post/post_confirm_delete.html'  # opcional
+    template_name = 'post/post_confirm_delete.html' 
     success_url = reverse_lazy('home')
 
     def test_func(self):
