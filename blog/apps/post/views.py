@@ -84,13 +84,22 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.object
+        user = self.request.user
 
-        context['comments'] = post.comments.order_by('-created_at')
+        print(f"Usuario: {user}")
+        print("Permisos:", user.get_all_permissions())
+
+        comments = post.comments.order_by('-created_at')
+
+        for comment in comments:
+            comment.can_edit = comment.author == self.request.user or self.request.user.is_staff
+
+        context['comments'] = comments
         context['comment_form'] = CommentForm() if post.allow_comments else None
 
         user_rating = None
-        if self.request.user.is_authenticated:
-            user_rating = post.ratings.filter(user=self.request.user).first()
+        if user.is_authenticated:
+            user_rating = post.ratings.filter(user=user).first()
         context['user_rating'] = user_rating.score if user_rating else 0
 
         ratings_stats = post.ratings.aggregate(avg=Avg('score'), count=Count('id'))
@@ -110,7 +119,6 @@ class PostDetailView(DetailView):
         context['stars'] = range(1, 6)
 
         return context
-
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         post = self.object
@@ -251,13 +259,14 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    slug_url_kwarg = 'slug'
     slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    template_name = 'post/post_confirm_delete.html'  # opcional
     success_url = reverse_lazy('home')
 
     def test_func(self):
         post = self.get_object()
-        return self.request.user == post.author
+        return self.request.user == post.author or self.request.user.is_staff
 
     def handle_no_permission(self):
         messages.error(self.request, "No tienes permiso para eliminar este post.")

@@ -35,15 +35,21 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
-    template_name = 'post/comment_confirm_delete.html'  
+    template_name = 'post/comment_confirm_delete.html'  # opcional
 
     def test_func(self):
         comment = self.get_object()
-        return self.request.user == comment.author  # Solo el autor puede eliminar
+        # Autor o admin puede eliminar
+        return self.request.user == comment.author or self.request.user.is_staff
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para eliminar este comentario.")
+        return super().handle_no_permission()
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, "Comentario eliminado correctamente.")
+        messages.success(request, "Comentario eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-             return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
+        # Redirige al detalle del post
+        return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
