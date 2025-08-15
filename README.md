@@ -55,7 +55,7 @@
 ## 🔑 Usuarios de prueba
 
 **COLABORADOR**  
-- Email: `CintiRomi`  
+- Usuario: `CintiRomi`  
 - Contraseña: `facil123`  
 
 **COLABORADOR**  
