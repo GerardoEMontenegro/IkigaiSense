@@ -73,7 +73,7 @@
 ## 🖼️ Captura de pantalla
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/usuario/ikigai-center/main/static/assets/screenshot_home.png" alt="Ikigai Center Home" width="700"/>
+  <img src="https://raw.githubusercontent.com/GerardoEMontenegro/IkigaiSense/refs/heads/main/blog/static/assets/screenshot_home.png" alt="Ikigai Center Home" width="700"/>
 </p>
 
 ---
