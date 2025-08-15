@@ -69,3 +69,5 @@ def create_groups_and_permissions(sender, **kwargs):
 
     except Permission.DoesNotExist:
         print("❌ Algunos permisos aún no están disponibles. Asegúrate de haber aplicado todas las migraciones.")
+
+

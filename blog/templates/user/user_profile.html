@@ -32,10 +32,10 @@ Perfil de {{ user.username }}
       </div>
     </div>
 
-    <div class="space-y-2">
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Rol:</strong> {% if user.is_staff %}Staff{% else %}Usuario{% endif %}</p>
-    </div>
+        <div class="space-y-2">
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p><strong>Rol:</strong> {{ role }}</p>
+        </div>
 
     <div>
      <a href="{% url 'user:auth_logout' %}" class="inline-block bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
