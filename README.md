@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/GerardoEMontenegro/IkigaiSense/blob/main/blog/static/assets/logo2.png" alt="Ikigai Center Logo" width="150"/>
+  <img src="https://raw.githubusercontent.com/GerardoEMontenegro/IkigaiSense/refs/heads/main/blog/static/assets/logo2.png" alt="Ikigai Center Logo" width="150"/>
 </p>
 
 <h1 align="center">🌿 Ikigai Center</h1>
