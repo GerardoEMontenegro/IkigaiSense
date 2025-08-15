@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='avatar',
-            field=models.ImageField(default='user/default/default-avatar-2.png', upload_to=apps.user.models.get_avatar_filename),
+            field=models.ImageField(default='user/default/default-avatar.png', upload_to=apps.user.models.get_avatar_filename),
         ),
         migrations.AlterField(
             model_name='user',

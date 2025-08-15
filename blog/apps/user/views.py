@@ -9,17 +9,33 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from .forms import CustomUserCreationForm, AvatarUpdateForm
-from .models import User
+from .models import User 
+from apps.post.models import Post
 
 
-class UserProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'user/user_profile.html'
+
+class UserProfileView(TemplateView):
+    template_name = "user/user_profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['user'] = user
-        context['posts'] = user.posts.all().order_by('-created_at')
+
+        if user.is_superuser:
+            role = "Superusuario"
+        elif user.groups.filter(name="Admins").exists():
+            role = "Administrador"
+        elif user.groups.filter(name="Collaborators").exists():
+            role = "Colaborador"
+        elif user.groups.filter(name="Registered").exists():
+            role = "Registrado"
+        else:
+            role = "Sin rol"
+
+        posts = Post.objects.filter(author=user).order_by('-created_at')
+
+        context["role"] = role
+        context["posts"] = posts
         return context
 
 

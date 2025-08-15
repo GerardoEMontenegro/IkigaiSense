@@ -12,7 +12,7 @@ def get_avatar_filename(instance, filename):
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     alias = models.CharField(max_length=30, blank=True)
-    avatar = models.ImageField(upload_to=get_avatar_filename, default='user/default/default-avatar-2.png')
+    avatar = models.ImageField(upload_to=get_avatar_filename, default='user/default/default-avatar.png')
 
     def __str__(self):
         return self.username
