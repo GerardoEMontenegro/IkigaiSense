@@ -44,17 +44,20 @@
         </p>
 
         <!-- Botones de acción -->
-        {% if user == object.author or perms.post.change_post  %}
+        {% if user == object.author or user.is_staff or user.is_admin  %}
             <div class="flex flex-wrap gap-3 mt-6 justify-start sm:justify-end">
                 <a href="{% url 'post:post_update' slug=object.slug %}" class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
                     ✏️ Editar
                 </a>
+                {% if user == object.author or user.is_admin or user.is_superuser  %}
                 <button type="button" onclick="confirmDelete()" class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
                     🗑️ Eliminar post
                 </button>
+
                 <form id="delete-post-form" method="post" action="{% url 'post:post_delete' slug=object.slug %}">
                     {% csrf_token %}
                 </form>
+                  {% endif %}
             </div>
         {% endif %}
 
@@ -115,14 +118,15 @@
                             👍 <span class="likes-count">{{ comment.likes.count }}</span>
                         </button>
 
-                        {% if user == comment.author or perms.comment.change_comment %}
+                        {% if user == comment.author or user.is_staff or user.is_admin %}
                             <button type="button"
                                     class="text-blue-600 hover:underline text-sm edit-toggle"
                                     data-id="{{ comment.id }}"
                                     data-content="{{ comment.content|escape }}">
                                 ✏️ Editar
                             </button>
-
+                            {% endif %}
+                            {% if user == comment.author or user.is_admin or user.is_superuser %}                            
                             <form method="post"
                                 action="{% url 'comments:comment_delete' pk=comment.id %}"
                                 style="display: inline;"

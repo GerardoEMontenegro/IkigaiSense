@@ -261,7 +261,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-    template_name = 'post/post_confirm_delete.html'  
+    template_name = 'post/post_confirm_delete.html'  # opcional
     success_url = reverse_lazy('home')
 
     def test_func(self):
