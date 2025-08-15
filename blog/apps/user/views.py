@@ -14,6 +14,8 @@ from apps.post.models import Post
 
 
 
+
+
 class UserProfileView(TemplateView):
     template_name = "user/user_profile.html"
 
@@ -23,9 +25,9 @@ class UserProfileView(TemplateView):
 
         if user.is_superuser:
             role = "Superusuario"
-        elif user.groups.filter(name="Admins").exists():
+        elif user.groups.filter(name="Admin").exists():
             role = "Administrador"
-        elif user.groups.filter(name="Collaborators").exists():
+        elif user.groups.filter(name="Collaborator").exists():
             role = "Colaborador"
         elif user.groups.filter(name="Registered").exists():
             role = "Registrado"

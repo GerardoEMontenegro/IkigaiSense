@@ -39,21 +39,19 @@ def create_groups_and_permissions(sender, **kwargs):
             perms['comment']['delete'],
         ])
 
-        # Collaborators
-        collaborator_group, _ = Group.objects.get_or_create(name='Collaborators')
+        # Collaborator
+        collaborator_group, _ = Group.objects.get_or_create(name='Collaborator')
         collaborator_group.permissions.set([
             perms['post']['view'],
             perms['post']['add'],
             perms['post']['change'],
-            perms['post']['delete'],
             perms['comment']['view'],
             perms['comment']['add'],
             perms['comment']['change'],
-            perms['comment']['delete'],
         ])
 
         # Admins
-        admin_group, _ = Group.objects.get_or_create(name='Admins')
+        admin_group, _ = Group.objects.get_or_create(name='Admin')
         admin_group.permissions.set([
             perms['post']['view'],
             perms['post']['add'],

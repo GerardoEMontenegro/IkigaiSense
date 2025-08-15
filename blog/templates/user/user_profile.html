@@ -32,9 +32,27 @@ Perfil de {{ user.username }}
       </div>
     </div>
 
-    <div class="space-y-2">
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Rol:</strong> {% if user.is_staff %}Staff{% else %}Usuario{% endif %}</p>
+             <div class="mt-6 space-y-3">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+            <p><strong>Rol:</strong> 
+              {% if user.is_superuser %}
+                  Superusuario
+              {% elif user.is_admin %}
+                  Administrador
+              {% elif user.is_collaborator %}
+                  Colaborador
+              {% elif user.is_registered %}
+                  Registrado
+              {% else %}
+                  Sin rol asignado
+              {% endif %}
+</p>
+                
+
+                
+
+            </p>
     </div>
 
     <div>

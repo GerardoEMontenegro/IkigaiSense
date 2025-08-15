@@ -208,7 +208,7 @@
         │       ├── post_157fe85d-50d3-4dd9-aa1d-7526413eca15_img_893a0632.jpeg
         │       └── ...
         └── user/
-            ├── avastar/
+            ├── avatar/
             │   ├── user_1654809b-d335-4fa5-965f-70efc546f642_avatar.jpg
             │   └── ...
             └── default/

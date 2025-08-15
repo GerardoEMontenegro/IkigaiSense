@@ -43,7 +43,7 @@
                   Mi Perfil
               </a>
             </li>
-             {% if user|has_group:"Collaborators" or user|has_group:"Admins" %}
+             {% if user|has_group:"Collaborator" or user|has_group:"Admin" %}
                 <li>
                 <a href="{% url 'post:post_create' %}" 
                   class="block px-4 py-2 hover:bg-gray-100">

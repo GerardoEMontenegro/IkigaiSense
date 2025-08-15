@@ -21,12 +21,12 @@ class CustomUserAdmin(BaseUserAdmin):
     is_registered.boolean = True
 
     def is_collaborator(self, obj):
-        return obj.groups.filter(name='Collaborators').exists()
+        return obj.groups.filter(name='Collaborator').exists()
     is_collaborator.short_description = 'Es Colaborador'
     is_collaborator.boolean = True
 
     def is_admin(self, obj):
-        return obj.groups.filter(name='Admins').exists()
+        return obj.groups.filter(name='Admin').exists()
     is_admin.short_description = 'Es Administrador'
     is_admin.boolean = True
 
@@ -38,21 +38,21 @@ class CustomUserAdmin(BaseUserAdmin):
             request, "Los usuarios seleccionados fueron añadidos al grupo 'Registered'.")
     add_to_registered.short_description = 'Agregar a Usuarios Registrados'
 
-    def add_to_collaborators(self, request, queryset):
-        collaborators_group = Group.objects.get(name='Collaborators')
+    def add_to_collaborator(self, request, queryset):
+        collaborator_group = Group.objects.get(name='Collaborator')
         for user in queryset:
-            user.groups.add(collaborators_group)
+            user.groups.add(collaborator_group)
         self.message_user(
-            request, "Los usuarios seleccionados fueron añadidos al grupo 'Collaborators'.")
-    add_to_collaborators.short_description = 'Agregar a Colaboradores'
+            request, "Los usuarios seleccionados fueron añadidos al grupo 'Collaborator'.")
+    add_to_collaborator.short_description = 'Agregar a Colaboradores'
 
-    def add_to_admins(self, request, queryset):
-        admins_group = Group.objects.get(name='Admins')
+    def add_to_admin(self, request, queryset):
+        admin_group = Group.objects.get(name='Admin')
         for user in queryset:
-            user.groups.add(admins_group)
+            user.groups.add(admin_group)
         self.message_user(
-            request, "Los usuarios seleccionados fueron añadidos al grupo 'Admins'.")
-    add_to_admins.short_description = 'Agregar a Administradores'
+            request, "Los usuarios seleccionados fueron añadidos al grupo 'Admin'.")
+    add_to_admin.short_description = 'Agregar a Administradores'
 
     def remove_from_registered(self, request, queryset):
         registered_group = Group.objects.get(name='Registered')
@@ -62,32 +62,32 @@ class CustomUserAdmin(BaseUserAdmin):
             request, "Los usuarios seleccionados fueron removidos del grupo 'Registered'.")
     remove_from_registered.short_description = 'Remover de Usuarios Registrados'
 
-    def remove_from_collaborators(self, request, queryset):
-        collaborators_group = Group.objects.get(name='Collaborators')
+    def remove_from_collaborator(self, request, queryset):
+        collaborator_group = Group.objects.get(name='Collaborator')
         for user in queryset:
-            user.groups.remove(collaborators_group)
+            user.groups.remove(collaborator_group)
         self.message_user(
-            request, "Los usuarios seleccionados fueron removidos del grupo 'Collaborators'.")
-    remove_from_collaborators.short_description = 'Remover de Colaboradores'
+            request, "Los usuarios seleccionados fueron removidos del grupo 'Collaborator'.")
+    remove_from_collaborator.short_description = 'Remover de Colaboradores'
 
-    def remove_from_admins(self, request, queryset):
-        admins_group = Group.objects.get(name='Admins')
+    def remove_from_admin(self, request, queryset):
+        admin_group = Group.objects.get(name='Admin')
         for user in queryset:
-            user.groups.remove(admins_group)
+            user.groups.remove(admin_group)
         self.message_user(
-            request, "Los usuarios seleccionados fueron removidos del grupo 'Admins'.")
-    remove_from_admins.short_description = 'Remover de Administradores'
+            request, "Los usuarios seleccionados fueron removidos del grupo 'Admin'.")
+    remove_from_admin.short_description = 'Remover de Administradores'
 
     list_display = ('username', 'email', 'is_staff', 'is_superuser',
                     'is_registered', 'is_collaborator', 'is_admin')
 
     actions = [
         add_to_registered,
-        add_to_collaborators,
-        add_to_admins,
+        add_to_collaborator,
+        add_to_admin,
         remove_from_registered,
-        remove_from_collaborators,
-        remove_from_admins,
+        remove_from_collaborator,
+        remove_from_admin,
     ]
 
 

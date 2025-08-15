@@ -35,11 +35,10 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
-    template_name = 'post/comment_confirm_delete.html'  # opcional
+    template_name = 'post/comment_confirm_delete.html'  
 
     def test_func(self):
         comment = self.get_object()
-        # Autor o admin puede eliminar
         return self.request.user == comment.author or self.request.user.is_staff
 
     def handle_no_permission(self):
