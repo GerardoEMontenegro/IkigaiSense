@@ -81,111 +81,164 @@
 ## 📂 Estructura del proyecto
 
 ```
-IkigaiSense/
-├── entorno/                           # Carpeta del entorno virtual
-│   ├── Include/
-│   ├── Lib/
-│   ├── Scripts/
-│   │   ├── activate
-│   │   ├── activate.bat
-│   │   ├── deactivate.bat
-│   │   ├── pip.exe
-│   │   ├── python.exe
-│   │   └── ...
-│   ├── pyvenv.cfg
-│   └── ...
-├── apps/
-│   ├── categories/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── migrations/
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── comments/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── migrations/
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── post/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── migrations/
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   └── user/
-│       ├── __init__.py
-│       ├── admin.py
-│       ├── apps.py
-│       ├── migrations/
-│       │   └── __init__.py
-│       ├── models.py
-│       ├── templatetags/
-│       │   └── __init__.py
-│       ├── tests.py
-│       ├── urls.py
-│       └── views.py
-├── blog/
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── media/
-│   ├── post/cover/
-│   └── user/
-├── static/
-│   ├── assets/
-│   └── js/
-├── templates/
-│   ├── auth/
-│   │   ├── login.html
-│   │   ├── logout.html
-│   │   ├── register.html
-│   │   ├── password_change.html
-│   │   ├── password_change_done.html
-│   │   └── ...
-│   ├── category/
-│   │   ├── category_list.html
-│   │   ├── category_detail.html
-│   │   ├── category_form.html
-│   │   └── ...
-│   ├── components/
-│   │   ├── navbar.html
-│   │   ├── footer.html
-│   │   └── ...
-│   ├── layouts/
-│   │   ├── base.html
-│   │   ├── dashboard.html
-│   │   ├── sidebar.html
-│   │   └── ...
-│   ├── post/
-│   │   ├── post_list.html
-│   │   ├── post_detail.html
-│   │   ├── post_form.html
-│   │   └── ...
-│   ├── ps_reset/
-│   │   ├── password_reset_form.html
-│   │   ├── password_reset_done.html
-│   │   ├── password_reset_confirm.html
-│   │   └── password_reset_complete.html
-│   ├── user/
-│   │   ├── profile.html
-│   │   ├── update.html
-│   │   └── ...
-│   ├── index.html
-│   └── about.html
-├── manage.py
-└── requirements.txt
+.
+├── .env
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── blog/
+    ├── manage.py
+    ├── apps/
+    │   ├── categorias/
+    │   │   ├── admin.py
+    │   │   ├── apps.py
+    │   │   ├── models.py
+    │   │   ├── tests.py
+    │   │   ├── views.py
+    │   │   └── migrations/
+    │   │       └── __init__.py
+    │   ├── comments/
+    │   │   ├── admin.py
+    │   │   ├── apps.py
+    │   │   ├── forms.py
+    │   │   ├── models.py
+    │   │   ├── tests.py
+    │   │   ├── urls.py
+    │   │   ├── views.py
+    │   │   └── migrations/
+    │   │       └── __init__.py
+    │   ├── post/
+    │   │   ├── admin.py
+    │   │   ├── apps.py
+    │   │   ├── forms.py
+    │   │   ├── models.py
+    │   │   ├── tests.py
+    │   │   ├── urls.py
+    │   │   ├── views.py
+    │   │   └── migrations/
+    │   │       ├── 0001_initial.py
+    │   │       ├── 0002_initial.py
+    │   │       ├── 0003_rating.py
+    │   │       ├── ...
+    │   │       └── __init__.py
+    │   └── user/
+    │       ├── admin.py
+    │       ├── apps.py
+    │       ├── forms.py
+    │       ├── models.py
+    │       ├── signals.py
+    │       ├── tests.py
+    │       ├── urls.py
+    │       ├── views.py
+    │       ├── templatetags/
+    │       │   ├── user_groups.py
+    │       │   └── __init__.py
+    │       └── migrations/
+    │           ├── 0001_initial.py
+    │           ├── 0002_alter_user_alias_alter_user_avatar_alter_user_email.py
+    │           ├── 0003_alter_user_avatar.py
+    │           └── __init__.py
+    ├── blog/
+    │   ├── asgi.py
+    │   ├── settings.py
+    │   ├── urls.py
+    │   ├── views.py
+    │   ├── wsgi.py
+    │   └── configurations/
+    │       ├── base.py
+    │       ├── local.py
+    │       └── production.py
+    ├── static/
+    │   ├── assets/
+    │   │   ├── colesterol.png
+    │   │   ├── default-avatar.png
+    │   │   ├── favicon2.png
+    │   │   ├── login-side-image.jpeg
+    │   │   ├── logo.png
+    │   │   └── logo2.png
+    │   ├── images/
+    │   │   ├── 500_333.png
+    │   │   ├── 805929522_237198349_1024x576.webp
+    │   │   ├── Alegría.jpg
+    │   │   ├── portada1.avif
+    │   │   └── ...
+    │   ├── svg/
+    │   │   ├── facebook.svg
+    │   │   ├── instagram.svg
+    │   │   └── pinterest.svg
+    │   └── js/
+    │       └── tailwind.js
+    ├── templates/
+    │   ├── layouts/
+    │   │   ├── auth_layout.html
+    │   │   ├── base_layout.html
+    │   │   ├── general_layout.html
+    │   │   └── post_layout.html
+    │   ├── components/
+    │   │   ├── commons/
+    │   │   │   ├── footer.html
+    │   │   │   └── heather.html
+    │   │   └── ui/
+    │   │       └── navbar.html
+    │   ├── post/
+    │   │   ├── comment_confirm_delete.html
+    │   │   ├── post_confirm_delete.html
+    │   │   ├── post_create.html
+    │   │   ├── post_detail.html
+    │   │   ├── post_list.html
+    │   │   ├── post_scripts.html
+    │   │   └── post_update.html
+    │   ├── user/
+    │   │   ├── update_avatar.html
+    │   │   └── user_profile.html
+    │   ├── auth/
+    │   │   ├── auth_login.html
+    │   │   ├── auth_register.html
+    │   │   ├── password_reset.html
+    │   │   ├── password_reset_complete.html
+    │   │   ├── password_reset_confirm.html
+    │   │   └── password_reset_done.html
+    │   └── category/
+    │       ├── category_create.html
+    │       └── category_detail.html
+    └── media/
+        ├── post/
+        │   └── cover/
+        │       ├── post_09cc903a-2d3d-4aab-9ce0-beeda1ef3548_img_8f922df1.png
+        │       ├── post_157fe85d-50d3-4dd9-aa1d-7526413eca15_img_893a0632.jpeg
+        │       └── ...
+        └── user/
+            ├── avastar/
+            │   ├── user_1654809b-d335-4fa5-965f-70efc546f642_avatar.jpg
+            │   └── ...
+            └── default/
+                └── default-avatar.png
+
+---
+
+## 📝 Licencia
+
+Este proyecto está bajo la licencia **MIT**.  
+Puedes consultar el archivo completo de licencia [aquí](LICENSE).
+
+MIT License
+
+Copyright (c) 2025 Gerardo Montenegro, Cintia Romina Bertoncini, German Edgardo Delfino
+
+Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia
+de este software y los archivos de documentación asociados (el "Software"), para
+tratar en el Software sin restricción, incluyendo sin limitación los derechos
+de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o
+vender copias del Software, y permitir a las personas a quienes se les proporcione
+el Software que lo hagan, sujeto a las siguientes condiciones:
+
+El aviso de copyright y este aviso de permiso se incluirán en todas las copias
+o partes sustanciales del Software.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A LAS GARANTÍAS DE COMERCIALIZACIÓN,
+IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS
+AUTORES O TITULARES DE LOS DERECHOS DE AUTOR SERÁN RESPONSABLES DE NINGUNA
+RECLAMACIÓN, DAÑO O OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN DE CONTRATO,
+AGRAVIO O DE OTRA FORMA, DERIVADA DEL SOFTWARE O DEL USO U OTRO TIPO DE
+OPERACIONES EN EL SOFTWARE.
