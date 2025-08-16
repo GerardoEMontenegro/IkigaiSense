@@ -1,58 +1,136 @@
 from django.contrib import admin
-from apps.post.models import Post, Comment, PostImage, Category #importando los modelos
+from apps.post.models import Post, Category, Comment, PostImage, Rating
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('title',)  # Muestra el campo 'title' en la lista de categorías
-    search_fields = ('title',)  # Permite buscar por el campo 'title'
+    list_display = ('title',)
+    search_fields = ('title',)
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'author',
+        'category',
+        'approved_post',
+        'created_at',
+        'updated_at',
+        'allow_comments'
+    )
+    list_editable = ('approved_post',) 
+    search_fields = ('title', 'content', 'author__username')
+    list_filter = (
+        'approved_post',      
+        'category',
+        'author',
+        'created_at',
+        'allow_comments'
+    )
+    prepopulated_fields = {'slug': ('title',)}  
+    readonly_fields = ('created_at', 'updated_at')
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ('Contenido', {
+            'fields': ('title', 'slug', 'category', 'author', 'content', 'image')
+        }),
+        ('Aprobación y comentarios', {
+            'fields': ('approved_post', 'allow_comments'),
+            'classes': ('collapse',),
+            'description': 'Controla la visibilidad del post y si permite comentarios.'
+        }),
+        ('Fechas (solo lectura)', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    actions = ['approve_posts', 'disapprove_posts']
+
+    @admin.action(description='✅ Aprobar los posts seleccionados')
+    def approve_posts(self, request, queryset):
+        updated = queryset.update(approved_post=True)
+        self.message_user(request, f'{updated} posts han sido aprobados.')
+
+    @admin.action(description='❌ Desaprobar los posts seleccionados')
+    def disapprove_posts(self, request, queryset):
+        updated = queryset.update(approved_post=False)
+        self.message_user(request, f'{updated} posts han sido desaprobados.')
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return qs
+        return qs.filter(author=request.user)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return True
+        if obj is not None and obj.author != request.user:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser or request.user.groups.filter(name="Admins").exists():
+            return True
+        if obj is not None and obj.author != request.user:
+            return False
+        return super().has_delete_permission(request, obj)
+
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'author', 'created_at', 'approved')
+    list_filter = ('approved', 'created_at', 'post', 'author')
+    search_fields = ('post__title', 'author__username', 'content')
+    list_editable = ('approved',)
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('post', 'author', 'content')
+        }),
+        ('Estado', {
+            'fields': ('approved',),
+        }),
+        ('Fechas', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+
+@admin.register(PostImage)
+class PostImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'image', 'created_at')
+    list_filter = ('post', 'created_at')
+    search_fields = ('post__title', 'post__id')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'user', 'score', 'created_at')
+    list_filter = ('score', 'post', 'user', 'created_at')
+    search_fields = ('post__title', 'user__username')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('post', 'user', 'score')
+        }),
+        ('Fecha', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+
 
 admin.site.register(Category, CategoryAdmin)
-
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'updated_at', 'approved_post')
-    search_fields = ('title', 'content', 'author__username')  # Permite buscar por título, contenido y nombre de usuario del autor
-    list_filter = ('created_at', 'updated_at', 'author', 'category',  'approved_post')  # Filtros para la lista de posts
-    prepopulated_fields = {'slug': ('title',)}  # Genera automáticamente el slug a partir del título
-    ordering = ('-created_at',)  # Ordena los posts por fecha de creación de forma descendente
-    actions = ['activate_comments', 'deactivate_comments']  # Acciones personalizadas para activar/desactivar comentarios
-    
-    def activate_comments(modeladmin, request, queryset): #activo comentarios
-        update = queryset.update(allow_comments=True)
-        modeladmin.message_user(request, f"{update} los comentarios fueron activados correctamente.")
-    
-    activate_comments.short_description = "Activar comentarios seleccionados"
-    
-    def deactivate_comments(modeladmin, request, queryset): #desactivo comentarios
-        update = queryset.update(allow_comments=False)
-        modeladmin.message_user(request, f"{update} los comentarios fueron desactivados correctamente.")
-   
-    deactivate_comments.short_description = "Desactivar comentarios seleccionados"
-
-admin.site.register(Post, PostAdmin)
-
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('author', 'post', 'created_at', 'updated_at')
-    search_fields = ('content',)
-    list_filter = ('created_at', 'updated_at')
-
-    def activate_images(modeladmin, request, queryset):
-        update = queryset.update(active=True)
-        modeladmin.message_user(request, f"{update} las imagenes fueron activadas correctamente.")
-    
-    activate_images.short_description = "Activar imagenes seleccionadas"
-
-    def deactivate_images(modeladmin, request, queryset):
-        update = queryset.update(active=False)
-        modeladmin.message_user(request, f"{update} las imagenes fueron desactivadas correctamente.")
-
-    deactivate_images.short_description = "Desactivar imagenes seleccionadas"
-
-admin.site.register(Comment, CommentAdmin)
-
-class PostImageAdmin(admin.ModelAdmin):
-    list_display = ('post', 'image', 'active', 'created_at')  # Muestra los campos 'post', 'image', 'active' y 'created_at'
-    search_fields = ('post__title', 'author__username', 'post__title')  # Permite buscar por el título del post asociado
-    list_filter = ('post',)   # Filtro para el post asociado
-    actions = ['activate_images', 'deactivate_images']  # Acciones personalizadas para activar/desactivar imágenes
-
-admin.site.register(PostImage, PostImageAdmin)   # Registra el modelo PostImage en el admin de Django

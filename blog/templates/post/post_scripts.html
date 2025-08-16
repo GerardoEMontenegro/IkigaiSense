@@ -1,0 +1,108 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Usamos event delegation en el contenedor de comentarios
+        const comentariosContainer = document.querySelector('.mx-28.mt-12'); // o usa un ID si puedes
+
+        comentariosContainer?.addEventListener('click', function (e) {
+            // Botón "Editar"
+            if (e.target.matches('.edit-toggle')) {
+                e.preventDefault();
+                const container = e.target.closest('.bg-gray-50'); // contenedor del comentario
+                const form = container.querySelector('.edit-form');
+                const deleteForm = container.querySelector('form[action*="delete"]');
+
+                // Mostrar formulario, ocultar botones
+                form.classList.remove('hidden');
+                e.target.classList.add('hidden');
+                deleteForm?.classList.add('hidden');
+            }
+
+            // Botón "Cancelar"
+            if (e.target.matches('.cancel-edit')) {
+                e.preventDefault();
+                const form = e.target.closest('.edit-form');
+                const container = form.closest('.bg-gray-50');
+                const editToggle = container.querySelector('.edit-toggle');
+                const deleteForm = container.querySelector('form[action*="delete"]');
+
+                form.classList.add('hidden');
+                editToggle.classList.remove('hidden');
+                deleteForm?.classList.remove('hidden');
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('#star-rating svg');
+    const ratingInput = document.getElementById('rating-input');
+    const ratingForm = document.getElementById('rating-form');
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const ratingValue = parseInt(star.getAttribute('data-value'));
+        ratingInput.value = ratingValue;
+
+        // Actualiza colores de estrellas
+        stars.forEach(s => {
+          const val = parseInt(s.getAttribute('data-value'));
+          s.setAttribute('fill', val <= ratingValue ? '#facc15' : '#e5e7eb');
+        });
+
+        // Envía el formulario automáticamente
+        ratingForm.submit();
+      });
+    });
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+  const likeButtons = document.querySelectorAll('.like-button');
+
+  likeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const commentId = button.getAttribute('data-comment-id');
+
+      fetch(`/comment/${commentId}/like/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Accept': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.liked) {
+          button.classList.add('text-green-600');
+          button.setAttribute('aria-pressed', 'true');
+        } else {
+          button.classList.remove('text-green-600');
+          button.setAttribute('aria-pressed', 'false');
+        }
+        button.querySelector('.likes-count').textContent = data.likes_count;
+      });
+    });
+  });
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
+    function confirmDelete() {
+        const confirmed = confirm("¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.");
+        if (confirmed) {
+            document.getElementById('delete-post-form').submit();
+        }
+    }
+</script>
+
+
+

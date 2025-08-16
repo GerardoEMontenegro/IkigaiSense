@@ -1,28 +1,97 @@
- <div class="container mx-auto max-w-7xl px-4"> 
-    <nav class="sticky bg-[#F6F2E6] align-middle mr-15">
-                <ul class="hidden text-lg text-[#2a4236] font-spectral align-middle mt-4 md:flex items-center space-x-8 font-medium">
-                    {% if user.is_authenticated %}
-                       <li><a href="{% url 'home' %}">Inicio</a></li>
-                       <li><a href="{% url 'user:user_profile' %}">Perfil</a></li>
-                        {% if user.is_collaborator %}
-                           <li><a href="{% url 'post:post_create' %}">Publicar</a></li>
-                        {% endif %}
-                       <form method="POST" action = "{% url 'user:auth_logout' %}">
-                        {% csrf_token %}
-                       <button type="submit">Cerrar Sesión</button></form>
-                    {% else %}
-                       <li><a href="{% url 'home' %}">Inicio</a></li>
-                       <li><a href="{% url 'user:auth_login' %}">Iniciar Sesión</a></li>
-                       <li><a href="{% url 'user:auth_register' %}">Registrarse</a></li>
-                    {% endif %}
-                </ul>
-                <div class="flex items-center space-x-4">
-                <button class="bg-spa-green text-white w-8 h-8 flex items-center justify-center rounded-md">
-                    <!-- Menú hamburguesa para móvil -->
-                <button class="md:hidden text-spa-dark">
-                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                </button>
-             </div>
+{% load static %}
+{% load widget_tweaks %}
+{% load user_groups %}
+
+<nav class="flex justify-between items-center p-4 bg-[#F6F2E6] ">
+ 
+
+  <ul class="hidden md:flex items-center space-x-6 text-lg text-[#445e35] font-libertinus-bold">
+                <li>
+              <a href="{% url 'home' %}" 
+                 class="block px-4 py-2 hover:bg-gray-100">
+                  Inicio
+              </a>
+            </li>
+
+
+    {% if user.is_authenticated %}
+      <li class="relative">
+        <button 
+          type="button"
+          class="flex items-center space-x-2 focus:outline-none"
+          onclick="toggleDropdown()"
+          id="avatar-button"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+          {% else %}
+            <img src="{% static 'assets/default-avatar.png' %}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+          {% endif %}
+          <span>{{ user.username }}</span>
+        </button>
+
+        <div 
+          id="dropdown-menu" 
+          class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden hidden z-50"
+        >
+          <ul class="text-sm text-gray-800">
+            <li>
+              <a href="{% url 'user:user_profile' %}" 
+                 class="block px-4 py-2 hover:bg-gray-100">
+                  Mi Perfil
+              </a>
+            </li>
+             {% if user|has_group:"Collaborator" or user|has_group:"Admin" %}
+                <li>
+                <a href="{% url 'post:post_create' %}" 
+                  class="block px-4 py-2 hover:bg-gray-100">
+                    Publicar
+                </a>
+                </li>
+            {% endif %}
+            <li>
+              <a href="{% url 'user:auth_logout' %}" 
+                 class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                  Cerrar sesión
+              </a>
+            </li>
+          </ul>
         </div>
-    </nav>
-</div>
+      </li>
+    {% else %}
+      <li>
+        <a href="{% url 'user:auth_login' %}" class="hover:underline">Iniciar sesión</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+<script>
+  function toggleDropdown() {
+    const dropdown = document.getElementById('dropdown-menu');
+    const expanded = dropdown.classList.contains('hidden');
+    dropdown.classList.toggle('hidden');
+
+    document.getElementById('avatar-button').setAttribute('aria-expanded', expanded);
+  }
+
+  document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('dropdown-menu');
+    const button = document.getElementById('avatar-button');
+
+    if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const dropdown = document.getElementById('dropdown-menu');
+      dropdown.classList.add('hidden');
+      document.getElementById('avatar-button').setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>

@@ -1,0 +1,43 @@
+{% extends 'layouts/general_layout.html' %}
+{% load static %}
+
+{% block content %}
+ <section class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="text-3xl text-[#203329] font-libertinus-bold">Acerca de nosotros</h1>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+       <div class="flex flex-col justify-center">
+         <h2 class="text-2xl text-[#203329] font-libertinus-bold mb-2">Nuestra misión</h2>
+         <p class="text-[#445e35] font-libertinus-italic text-left mb-4">Nuestra misión es proporcionar información precisa y actualizada sobre salud integral, </br> ayudando a las personas a tomar decisiones informadas para mejorar su bienestar físico,</br> emocional y mental.</p>
+         <p class="text-[#445e35] font-libertinus-italic text-left mb-4">Nuestra meta es empoderar a las personas con conocimientos y herramientas para que puedan</br> tomar el control de su salud y bienestar.</p>  
+       </div>
+
+       <div class="mt-12">
+         <h2 class="text-2xl text-[#203329] font-libertinus-bold mb-4">Nuestro equipo</h2>
+         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div class="flex flex-col items-center">
+             <img src="{% static 'Gerardo.png' %}" alt="Gerardo E. Montenegro" class="object-cover h-48 w-48 rounded-full shadow-md mb-4">
+             <h3 class="text-xl text-[#203329] font-libertinus-bold mb-2">Gerardo Emanuel Montenegro</h3>
+             <p class="text-[#445e35] font-libertinus-italic mb-4">
+              Backend<br>
+              Musico y Programador Junior.<br>
+
+
+             </p>
+           </div>
+           <div class="flex flex-col items-center">
+             <img src="{% static 'cin.png' %}" alt="Cintia Bertoncini" class="object-cover h-48 w-48 rounded-full shadow-md mb-4">
+             <h3 class="text-xl text-[#203329] font-libertinus-bold mb-2">Cintia Romina Bertoncini</h3>
+             <p class="text-[#445e35] font-libertinus-italic mb-4">Programadora front end, aspirante a full stack. Esposa y mamá de dos niñas.</p>
+           </div>
+
+
+           
+           <div class="flex flex-col items-center">
+             <img src="{% static 'German.png' %}" alt="German Edgardo Delfino" class="object-cover h-48 w-48 rounded-full shadow-md mb-4">
+             <h3 class="text-xl text-[#203329] font-libertinus-bold mb-2">German Edgardo Delfino</h3>
+             <p class="text-[#445e35] font-libertinus-italic mb-4">Estudiante de programación/Diseño grafico digital/Tec. Administración.</p>
+           </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

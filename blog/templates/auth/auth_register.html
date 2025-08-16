@@ -1,7 +1,6 @@
 {% load widget_tweaks %}
 {% load static %}
-{% load django_browser_reload %}
-{% django_browser_reload_script %}
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -40,7 +39,7 @@
         </div>
       {% endif %}
 
-      <form method="post" class="space-y-5" novalidate>
+      <form method="post" enctype="multipart/form-data" class="space-y-5" novalidate>
         {% csrf_token %}
 
         <div>
@@ -91,7 +90,7 @@
       </form>
 
       <div class="text-center">
-        <a href="{% url 'user:login' %}" class="text-sm text-blue-500 hover:underline">
+        <a href="{% url 'user:auth_login' %}" class="text-sm text-blue-500 hover:underline">
           ¿Ya tenés cuenta? Ingresar
         </a>
       </div>

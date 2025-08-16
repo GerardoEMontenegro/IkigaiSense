@@ -17,16 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from blog.views import IndexView
+from blog.views import IndexView, AboutUsView
 #from registro import views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', IndexView.as_view(), name='home'),
-    path("__reload__/", include("django_browser_reload.urls")),
     path('', include('apps.user.urls', namespace='user')),
     path('', include('apps.post.urls', namespace='post')),
+    path('', include('apps.comments.urls', namespace='comments')),
+    path('about/', AboutUsView.as_view(), name='about_us'),
+
 ]
 
 if settings.DEBUG:

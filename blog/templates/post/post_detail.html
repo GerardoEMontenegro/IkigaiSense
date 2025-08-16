@@ -1,0 +1,166 @@
+{% extends 'layouts/post_layout.html' %}
+{% load static %}
+
+{% block content %}
+<main class="px-4 py-8 text-[#3F4F36]">
+    <div class="max-w-4xl mx-auto">
+        <!-- Título y autor -->
+        <h1 class="text-4xl font-bold mb-4">{{ object.title }}</h1>
+
+        <p class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+            Publicado el {{ object.created_at|date:"d M Y" }} por 
+            {% if object.author.avatar %}
+                <img src="{{ object.author.avatar.url }}" alt="{{ object.author.username }}" class="w-6 h-6 rounded-full object-cover">
+            {% else %}
+                <img src="{% static 'assets/default-avatar.png' %}" alt="{{ object.author.username }}" class="w-6 h-6 rounded-full object-cover">
+            {% endif %}
+            <span>{{ object.author.username }}</span>
+        </p>
+
+        <!-- Imagen principal -->
+        {% if object.image %}
+            <img src="{{ object.image.url }}" alt="{{ object.title }}" class="w-full h-auto object-cover rounded-lg shadow-lg mb-8">
+        {% endif %}
+
+        <!-- Galería de imágenes -->
+        {% if object.images.exists %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {% for img in object.images.all %}
+                    {% if img.image %}
+                        <img src="{{ img.image.url }}" alt="Imagen de {{ object.title }}" class="w-full h-64 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-200">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Contenido del post -->
+        <p class="text-2xl text-[#19221d] font-spectral font-extralight mb-6">
+            {{ object.content|linebreaks }}
+        </p>
+
+        <!-- Autor al final del post -->
+        <p class="flex font-libertinus-bold text-2xl text-[#19221d] justify-end">
+            <strong>{{ object.author.username }}</strong>
+        </p>
+
+        <!-- Botones de acción -->
+        {% if user == object.author or user.is_collaborator or user.is_admin  %}
+            <div class="flex flex-wrap gap-3 mt-6 justify-start sm:justify-end">
+                <a href="{% url 'post:post_update' slug=object.slug %}" class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+                    ✏️ Editar
+                </a>
+                {% if user == object.author or user.is_admin or user.is_superuser  %}
+                <button type="button" onclick="confirmDelete()" class="inline-flex items-center gap-2 bg-[#3F4F36] hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+                    🗑️ Eliminar post
+                </button>
+
+                <form id="delete-post-form" method="post" action="{% url 'post:post_delete' slug=object.slug %}">
+                    {% csrf_token %}
+                </form>
+                  {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Valoración -->
+        <section class="shadow-md rounded-lg p-6 mt-8">
+            <h3 class="text-2xl font-libertinus-regular text-gray-900 mb-4">⭐ Valoración</h3>
+
+            <p class="text-lg text-gray-700 mb-4" id="average-rating-display">
+                {% if average_rating %}
+                    Promedio: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+                    <span class="text-sm text-gray-500">({{ ratings_count }} voto{{ ratings_count|pluralize }})</span>
+                {% else %}
+                    Este post aún no tiene puntuaciones.
+                {% endif %}
+            </p>
+
+            {% if user.is_authenticated %}
+                <form id="rating-form" class="flex flex-col gap-3" method="post" action="{% url 'post:post_rating' object.slug %}">
+                    {% csrf_token %}
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-800">Tu puntuación:</label>
+                        <div class="flex items-center gap-1" id="star-rating">
+                            {% for i in stars %}
+                                <svg data-value="{{ i }}" xmlns="http://www.w3.org/2000/svg" fill="{% if user_rating|default_if_none:0 >= i %}#facc15{% else %}#e5e7eb{% endif %}" viewBox="0 0 24 24" class="w-6 h-6 cursor-pointer hover:scale-110 transition-transform duration-150">
+                                    <path stroke="#d1d5db" stroke-width="1.5" d="M12 2l2.9 5.9L21 9.1l-4.5 4.4L17.8 21 12 17.8 6.2 21l1.3-7.5L3 9.1l6.1-1.2L12 2z"/>
+                                </svg>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="score" id="rating-input" value="{{ user_rating|default:0 }}">
+                </form>
+            {% else %}
+                <a href="{% url 'user:auth_login' %}" class="text-blue-500 underline"> Inicia sesión</a> para calificar este post.
+            {% endif %}
+        </section>
+
+        <!-- Comentarios -->
+        <div class="mt-12">
+            <h3 class="text-2xl font-spectral font-semibold text-[#2a4236] mb-6">Comentarios ({{ comments.count }})</h3>
+
+            {% for comment in comments %}
+                <div class="bg-gray-50 p-5 rounded-lg mb-5 relative">
+                    <p class="flex items-center gap-2 font-tangerine text-xl text-[#19221d]">
+                        {% if comment.author.avatar %}
+                            <img src="{{ comment.author.avatar.url }}" alt="{{ comment.author.username }}" class="w-6 h-6 rounded-full object-cover">
+                        {% endif %}
+                        <strong>{{ comment.author.username }}</strong>
+                    </p>
+                    <p class="text-gray-800 mt-1 whitespace-pre-wrap">{{ comment.content|linebreaks }}</p>
+                    <p class="text-xs text-gray-500 mt-2">{{ comment.created_at|timesince }} ago</p>
+
+                  
+                        <div class="mt-3 space-x-4">
+                        <button class="like-button text-sm text-gray-600 hover:text-green-600 items-center gap-1"
+                                data-comment-id="{{ comment.id }}"
+                                aria-pressed="{% if user in comment.likes.all %}true{% else %}false{% endif %}"
+                                type="button">
+                            👍 <span class="likes-count">{{ comment.likes.count }}</span>
+                        </button>
+
+                        {% if user == comment.author or user.is_collaborator or user.is_admin %}
+                            <button type="button"
+                                    class="text-blue-600 hover:underline text-sm edit-toggle"
+                                    data-id="{{ comment.id }}"
+                                    data-content="{{ comment.content|escape }}">
+                                ✏️ Editar
+                            </button>
+                            {% endif %}
+                            {% if user == comment.author or user.is_admin or user.is_superuser %}                            
+                            <form method="post"
+                                action="{% url 'comments:comment_delete' pk=comment.id %}"
+                                style="display: inline;"
+                                onsubmit="return confirm('¿Deseas eliminar este comentario?')">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:underline text-sm">🗑️ Eliminar</button>
+                            </form>
+                            {% endif %}
+                    </div>
+            {% empty %}
+                <p class="text-gray-600 text-sm">No hay comentarios aún. ¡Sé el primero en comentar!</p>
+            {% endfor %}
+        </div>
+
+        <!-- Formulario de nuevo comentario -->
+        {% if user.is_authenticated %}
+            <form method="post" class="shadow-md rounded-lg p-6 mt-8">
+                {% csrf_token %}
+                <h3 class="text-lg font-spectral font-semibold">Deja tu comentario:</h3>
+                <textarea name="content" rows="3" placeholder="Escribe aquí tu comentario..." class="w-full border text-3xl text-slate-800 font-libertinus-regular border-gray-300 rounded-md my-3 p-3 focus:outline-none focus:ring-2 focus:ring-[#2a4236] transition">{{ comment_form.content.value|default:'' }}</textarea>
+                {% if comment_form.content.errors %}
+                    <p class="text-sm text-red-600 mt-1">{{ comment_form.content.errors.0 }}</p>
+                {% endif %}
+                <button type="submit" class="flex justify-end border-2 border-white rounded-full bg-[#F6F2E6] text-[#203329] text-base font-spectral py-3 px-6 hover:bg-[#203329] hover:text-amber-50 transition duration-300">Publicar</button>
+            </form>
+        {% else %}
+         <a href="{% url 'user:auth_login' %}" class="text-blue-500 underline">Inicia sesión</a> para comentar este post.
+        {% endif %}
+    </div>
+</main>
+
+<!-- Scripts (rating, like, confirm delete, edición de comentarios) -->
+{% include 'post/post_scripts.html' %}
+
+{% endblock content %}
+
+

@@ -1,1 +1,83 @@
-asdasd
+{% extends 'layouts/general_layout.html' %}
+{% load static %}
+
+{% block title %}
+Perfil de {{ user.username }}
+{% endblock title %}
+
+{% block content %}
+<section class="min-h-screen bg-white border-y border-slate-400 text-[#3F4F36] flex flex-row gap-10 justify-center items-center py-12 px-4">
+
+  <div class="bg-[#F6F2E6] border border-slate-400 rounded-lg shadow-md max-w-lg w-full p-6 space-y-6">
+
+    <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">
+      Perfil de Usuario
+    </h2>
+
+    <div class="flex items-center space-x-6">
+      {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="rounded-full w-24 h-24 object-cover" />
+      {% else %}
+        <img src="{% static 'user/default/default-avatar-2.png' %}" alt="Avatar por defecto" class="rounded-full w-24 h-24 object-cover" />
+      {% endif %}
+
+      <div>
+        <h3 class="text-xl font-semibold">{{ user.username }}</h3>
+        {% if user.alias %}
+          <p class="text-gray-600">Alias: {{ user.alias }}</p>
+        {% endif %}
+        <a href="{% url 'user:update_avatar' %}" class="mt-2 inline-block text-sm text-[#3F4F36] hover:underline">
+          Cambiar avatar
+        </a>
+      </div>
+    </div>
+
+             <div class="mt-6 space-y-3">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+            <p><strong>Rol:</strong> 
+              {% if user.is_superuser %}
+                  Superusuario
+              {% elif user.is_admin %}
+                  Administrador
+              {% elif user.is_collaborator %}
+                  Colaborador
+              {% elif user.is_registered %}
+                  Registrado
+              {% else %}
+                  Sin rol asignado
+              {% endif %}
+</p>
+                
+
+                
+
+            </p>
+    </div>
+
+    <div>
+     <a href="{% url 'user:auth_logout' %}" class="inline-block bg-[#3F4F36] hover:bg-[#2f3c28] text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+      Cerrar sesión
+     </a>
+    </div>
+  </div>
+
+  <div class="bg-[#F6F2E6] border border-slate-400 rounded-lg shadow-md max-w-lg w-full p-6 space-y-6">
+    <h2 class="text-2xl font-semibold border-b border-[#3F4F36] pb-2 mb-4">Mis Posts</h2>
+
+    {% if posts %}
+      <ul class="list-disc list-inside space-y-2 max-h-60 overflow-y-auto">
+        {% for post in posts %}
+        <li><a href="{% url 'post:post_detail' post.slug %}" class="text-[#3F4F36] hover:underline">
+            {{ post.title }}
+            </a>
+            <span class="text-sm text-gray-500">- {{ post.created_at|date:"d M Y" }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No has creado ningún post aún.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock content %}

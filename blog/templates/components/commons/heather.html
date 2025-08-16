@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<header class="bg-[#F6F2E6] hidden md:flex justify-between items-center py-2 text-sm border-b border-gray-200">
+<header class="bg-[#F6F2E6] md:flex justify-between items-center py-2 text-sm border-b border-gray-200">
             <div class="flex items-center">
                 <!-- Logo -->
-            <img src="{% static 'assets/logo2.png' %}"  alt="Logo Ikigai" class="h-20 mr-2">
+            <a href="{% url 'home' %}"><img src="{% static 'assets/logo2.png' %}" alt="Logo Ikigai" class="h-20 mr-2"></a>
             </div>
-        <div> {% include 'components/ui/navia.html' %} </div>
+        <div> {% include 'components/ui/navbar.html' %} </div>
 </header>
 
 {% endblock content%}
