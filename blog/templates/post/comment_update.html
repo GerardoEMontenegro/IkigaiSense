@@ -1,0 +1,16 @@
+{% extends "layouts/general_layout.html" %}
+
+{% block content %}
+<h2 class="text-xl font-bold mb-4">Editar comentario</h2>
+
+<form method="post" class="text-xl font-libertinus-regular m-28 space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit"
+            class="bg-[#203329] text-white px-4 py-2 rounded">
+        Guardar cambios
+    </button>
+    <a href="{{ object.post.get_absolute_url }}"
+       class="ml-3 text-gray-600 hover:underline">Cancelar</a>
+</form>
+{% endblock %}

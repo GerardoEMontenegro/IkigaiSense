@@ -119,11 +119,9 @@
                         </button>
 
                         {% if user == comment.author or user.is_collaborator or user.is_admin %}
-                            <button type="button"
-                                    class="text-blue-600 hover:underline text-sm edit-toggle"
-                                    data-id="{{ comment.id }}"
-                                    data-content="{{ comment.content|escape }}">
-                                ✏️ Editar
+                                    <a href="{% url 'comments:comment_edit' pk=comment.id %}"
+                                        class="text-blue-600 hover:underline text-sm">
+                                    ✏️ Editar</a>
                             </button>
                             {% endif %}
                             {% if user == comment.author or user.is_admin or user.is_superuser %}                            
