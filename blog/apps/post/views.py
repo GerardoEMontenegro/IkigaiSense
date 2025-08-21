@@ -16,12 +16,12 @@ from .forms import ImageFormSet
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'posts'  
+    context_object_name = 'posts'
 
     def get_queryset(self):
         queryset = Post.objects.filter(approved_post=True).select_related('author', 'category').annotate(
         comments_count=Count('comments'),
-        avg_rating=Avg('ratings__score')  
+        avg_rating=Avg('ratings__score')
     )
         form = PostFilterForm(self.request.GET)
         if form.is_valid():
@@ -221,7 +221,12 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         post = self.get_object()
-        return self.request.user == post.author
+        return (
+            self.request.user.is_superuser or
+            self.request.user.is_admin or
+            self.request.user.is_collaborator or
+            self.get_object().author == self.request.user
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -239,7 +244,6 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
         if images_formset.is_valid():
             with transaction.atomic():
-                form.instance.author = self.request.user
                 self.object = form.save()
 
                 images_formset.instance = self.object
@@ -255,7 +259,7 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('post:post_detail', kwargs={'slug': self.object.slug})
-    
+
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -341,9 +345,9 @@ class CategoryCreateView(View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        name = request.POST.get('title')  
+        name = request.POST.get('title')
         if name:
-          
+
             Category.objects.create(title=name)
             messages.success(request, "Categoría creada correctamente.")
             return redirect('post:category_create')
