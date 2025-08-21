@@ -11,7 +11,10 @@ from apps.post.forms import PostForm, PostFilterForm, CategoryForm
 from apps.post.models import Post, Comment, Rating, Category, PostImage
 from apps.comments.forms import CommentForm
 from .forms import ImageFormSet
-
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import permission_required
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions, viewsets
 
 class PostListView(ListView):
     model = Post
@@ -219,6 +222,11 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     slug_url_kwarg = 'slug'
     slug_field = 'slug'
 
+    def post_detail(request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        if request.user != post.author and not request.user.is_superuser:
+            return HttpResponseForbidden("No tienes permiso para editar este post")
+
     def test_func(self):
         post = self.get_object()
         return (
@@ -260,12 +268,34 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('post:post_detail', kwargs={'slug': self.object.slug})
 
+<<<<<<< HEAD
+=======
+class IsAuthorOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.author == request.user or request.user.is_staff    
+
+class PostViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
+
+class IsOwnerOrReadOnly(IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.author == request.user
+    def has_object_permission(self, request, view, obj):
+      if request.method in ['GET', 'POST', 'PUT', 'DELETE']:
+        return obj.author == request.user or request.user.is_staff
+      return False
+
+>>>>>>> 4d9e1bbc803390d97ec6d23b908e7ab06e6377d5
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-    template_name = 'post/post_confirm_delete.html'  # opcional
+    template_name = 'post/post_confirm_delete.html' 
     success_url = reverse_lazy('home')
 
     def test_func(self):
