@@ -26,6 +26,12 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
 
+<<<<<<< HEAD
+=======
+    #def get(self, request, *args, **kwargs):  #comentado por repetición
+     #   return redirect(self.get_success_url())
+
+>>>>>>> d4cae9723c6614aeed98d382bf7bc853a00ae994
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
