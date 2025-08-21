@@ -3,24 +3,21 @@ from django.urls import reverse_lazy
 from apps.post.models import Comment
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from apps.comments.forms import CommentForm
+from apps.comments.forms import CommentEditForm
 from apps.post.models import Post
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
 
-
-
-
-
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
-    form_class = CommentForm
+    form_class = CommentEditForm  
+    template_name = 'post/comment_update.html'  
 
     def test_func(self):
         comment = self.get_object()
-        return self.request.user == comment.author
+        return self.request.user == comment.author         
 
     def form_valid(self, form):
         messages.success(self.request, "Comentario actualizado con éxito.")
@@ -28,9 +25,6 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('post:post_detail', kwargs={'slug': self.object.post.slug})
-
-    def get(self, request, *args, **kwargs):
-        return redirect(self.get_success_url())
 
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
