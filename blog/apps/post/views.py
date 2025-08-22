@@ -15,12 +15,12 @@ from .forms import ImageFormSet
 class PostListView(ListView):
     model = Post
     template_name = 'post/post_list.html'
-    context_object_name = 'posts'  
+    context_object_name = 'posts'
 
     def get_queryset(self):
         queryset = Post.objects.filter(approved_post=True).select_related('author', 'category').annotate(
         comments_count=Count('comments'),
-        avg_rating=Avg('ratings__score')  
+        avg_rating=Avg('ratings__score')
     )
         form = PostFilterForm(self.request.GET)
         if form.is_valid():
@@ -260,7 +260,6 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('post:post_detail', kwargs={'slug': self.object.slug})
 
 
-
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     slug_field = 'slug'
@@ -345,9 +344,9 @@ class CategoryCreateView(View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        name = request.POST.get('title')  
+        name = request.POST.get('title')
         if name:
-          
+
             Category.objects.create(title=name)
             messages.success(request, "Categoría creada correctamente.")
             return redirect('post:category_create')
