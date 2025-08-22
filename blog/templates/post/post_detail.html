@@ -118,7 +118,6 @@
                             👍 <span class="likes-count">{{ comment.likes.count }}</span>
                         </button>
 
-<<<<<<< HEAD
                                {% if user == comment.author or user.is_collaborator or user.is_admin %}
                                     <a href="{% url 'comments:comment_edit' pk=comment.id %}"
                                         class="text-blue-600 hover:underline text-sm">
