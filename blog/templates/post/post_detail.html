@@ -133,7 +133,6 @@
                                     <button type="submit" class="text-red-600 hover:underline text-sm">🗑️ Eliminar</button>
                                 </form>
                                 {% endif %}
-=======
                         {% if user == comment.author or user.is_collaborator or user.is_admin %}
                                     <a href="{% url 'comments:comment_edit' pk=comment.id %}"
                                         class="text-blue-600 hover:underline text-sm">
@@ -149,7 +148,6 @@
                                 <button type="submit" class="text-red-600 hover:underline text-sm">🗑️ Eliminar</button>
                             </form>
                             {% endif %}
->>>>>>> d4cae9723c6614aeed98d382bf7bc853a00ae994
                     </div>
             {% empty %}
                 <p class="text-gray-600 text-sm">No hay comentarios aún. ¡Sé el primero en comentar!</p>
@@ -177,5 +175,4 @@
 {% include 'post/post_scripts.html' %}
 
 {% endblock content %}
-
 
